@@ -29,7 +29,13 @@ const {token,setToken} = useLoginSession()
   const handleLogin = async () => {
     try {
 
+
       setLoading(true)
+
+      if(!userName || !password){
+         toast.error("Please Enter all credentials") 
+         return
+      }
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const res = await useLogin(userName, password);
 setToken(res.token)
@@ -97,6 +103,7 @@ setToken(res.token)
 
           {/* Login Button */}
           <button
+          type="button"
             onClick={handleLogin}
             disabled={loading}
             className="bg-[#c9184a] mt-5 cursor-pointer font-bold text-white py-2 rounded-md hover:bg-[#b88658] transition"

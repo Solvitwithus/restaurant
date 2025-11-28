@@ -31,7 +31,7 @@ const mealCategory = [
 ];
 
   return (
-    <div className="w-[49%] p-1 h-[90vh] border border-black">
+    <div className="w-[49%] px-5 py-2 h-[90vh]  border border-dotted border-[#c9184a]/50">
 
       {/* navigation section */}
       <div className="flex items-center gap-4 mb-3">
@@ -40,8 +40,8 @@ const mealCategory = [
           className="w-48 border border-black rounded-md px-2 py-1"
           placeholder="search"
         />
-        <Link href={"/stock-list"}>Items</Link>
-        <Link href={"/"}>Item List</Link>
+        <Link href={"/sales-register"} className="text-[#099c7f] font-medium text-sm">Items</Link>
+        <Link href={"/stock-list"} className="text-[#4B2E26] font-medium text-sm">Item List</Link>
       </div>
 
       {/* category + items section */}
@@ -65,7 +65,7 @@ const mealCategory = [
         </div>
 
         {/* Items section */}
-        <div className="w-full border border-black p-2">
+        <div className="w-full border border-black/10 rounded-md p-2">
           Items
         </div>
 

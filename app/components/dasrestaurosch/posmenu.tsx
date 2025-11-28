@@ -5,7 +5,7 @@ import Globe from "@/public/globe.svg";
 import HomeIcon from "@/public/homeIcon.svg";
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname,useRouter } from 'next/navigation';
 import { useLoginSession } from '@/app/store/useAuth';
 interface LandingPage {
   name: string;
@@ -18,6 +18,7 @@ function Menu() {
 
   const {clearToken}= useLoginSession()
   const currentPath = usePathname()
+  const router = useRouter()
   const displayPanel: LandingPage[] = [
     { name: "Sales Register", path: "/sales-register", icon: HomeIcon },
     { name: "Stock List", path: "/stock-list", icon: Globe },
@@ -71,11 +72,14 @@ function Menu() {
   </Link>
 
   <Link
-    href="/"
+    
     onClick={() => {
+      router.push("/")
       clearToken();
       localStorage.removeItem("login-session");
     }}
+    
+    href="https://res.digerp.com/index.php"
     className="text-gray-600 hover:underline text-sm font-medium"
   >
     Exit
