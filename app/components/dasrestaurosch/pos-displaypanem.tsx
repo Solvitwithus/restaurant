@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from 'react'
-import { Pause ,SidebarCloseIcon} from 'lucide-react'
+import { Pause ,SidebarCloseIcon,PlayIcon} from 'lucide-react'
 import { useRestrauntTables, useSessionCreation } from '@/app/hooks/access'
 import { useLoginSession } from '@/app/store/useAuth'
 import { toast } from 'sonner'
@@ -97,7 +97,8 @@ setNumGuests(0)
 
    
    
-
+// now that we have the session id and the we can create the order and foward to the kitchen pass in the session id and once the food is marked as ready by the kitchen then we can proceed to payment
+// the basis is that we have to make the payment only when the order is ready
 
 
   
@@ -165,6 +166,16 @@ setNumGuests(0)
 </button>
 
 
+ <button
+  type="button"
+  className="flex-1 flex items-center justify-center gap-2 bg-[#086d59] py-2 
+             font-semibold cursor-pointer text-white rounded-md shadow-sm
+             hover:bg-[#077d66] active:scale-95 transition-all"
+>
+  <PlayIcon height={18} width={18} className="text-white" />
+  Held Orders
+</button>
+
     <button
       type="button"
       className="flex-1 bg-[#4B2E26] py-2 font-semibold text-white rounded-md 
@@ -173,7 +184,7 @@ setNumGuests(0)
       Clear Order
     </button>
 
-<span className='text-red-600 font-bold'>{sessionId}</span>
+
   </div>
 
  
