@@ -5,6 +5,8 @@ type Login = {
   password: string;
 };
 
+
+const prefix = process.env.NEXT_PUBLIC_COmpany_Prefix
 export async function useLogin(
   username: string,
   password: string
@@ -12,7 +14,7 @@ export async function useLogin(
   try {
     const formData = new FormData();
     formData.append("tp", "pos_login");
-    formData.append("cp", "0_");
+    formData.append("cp", prefix??"");
     formData.append("username", username);
     formData.append("password", password);
 
@@ -23,6 +25,26 @@ export async function useLogin(
 
     return response.data;
   } catch (error) {
+    console.error("Login Error:", error);
+    return null;
+  }
+}
+
+
+export async function useRestrauntTables(){
+  try{
+  const formData = new FormData();
+  formData.append("tp","get_tables");
+  formData.append("cp", prefix??"");
+
+    const response = await axios.postForm(
+      process.env.NEXT_PUBLIC_BASEURL as string,
+      formData
+    );
+
+    return response.data;
+  }
+  catch (error) {
     console.error("Login Error:", error);
     return null;
   }

@@ -16,7 +16,7 @@ interface LandingPage {
 
 function Menu() {
 
-  const {clearToken}= useLoginSession()
+  const {clearToken,clearUsers}= useLoginSession()
   const currentPath = usePathname()
   const router = useRouter()
   const displayPanel: LandingPage[] = [
@@ -64,6 +64,7 @@ function Menu() {
     href="/"
     onClick={() => {
       clearToken();
+      clearUsers();
       localStorage.removeItem("login-session");
     }}
     className="text-red-600 hover:underline text-sm font-medium"
@@ -76,6 +77,7 @@ function Menu() {
     onClick={() => {
       router.push("/")
       clearToken();
+      clearUsers();
       localStorage.removeItem("login-session");
     }}
     

@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useLoginSession } from "@/app/store/useAuth";
 export default function LoginCard() {
   const router = useRouter();
-const {token,setToken} = useLoginSession()
+const {token,setToken,setUsers} = useLoginSession()
   const [userName, setUserName] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState(false)
@@ -39,6 +39,7 @@ const {token,setToken} = useLoginSession()
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const res = await useLogin(userName, password);
 setToken(res.token)
+setUsers([res.user])
       if (res && res.status === "SUCCESS") {
         router.push("/sales-register");
       } else {
