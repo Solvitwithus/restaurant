@@ -6,7 +6,7 @@ type Login = {
 };
 
 
-const prefix = process.env.NEXT_PUBLIC_COmpany_Prefix
+const prefix = process.env.NEXT_PUBLIC_COMPANY_PREFIX;
 export async function useLogin(
   username: string,
   password: string
