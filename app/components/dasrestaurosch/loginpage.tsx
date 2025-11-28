@@ -61,11 +61,12 @@ setToken(res.token)
           className="rounded-xl"
         />
 
-        <TypingAnimation
-          words={["DigiSales"]}
-          className="text-[#c9184a] text-2xl z-10 font-semibold"
-          blinkCursor
-        />
+       <TypingAnimation
+  words={["DigiSales"]}
+  className="text-[#c9184a] text-2xl z-10 font-semibold"
+  blinkCursor
+  startOnView={false}  // ← THIS FIXES IT IMMEDIATELY
+/>
 
         <h6 className="text-md text-[#D4A373]">
           Welcome Back! <span className="text-[#ddc09d]">Log in to Continue...</span>
