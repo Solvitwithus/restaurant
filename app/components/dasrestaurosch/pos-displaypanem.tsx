@@ -1,8 +1,9 @@
 "use client"
 import React, { useEffect, useState } from 'react'
 import { Pause ,SidebarCloseIcon} from 'lucide-react'
-import { useRestrauntTables } from '@/app/hooks/access'
+import { useRestrauntTables, useSessionCreation } from '@/app/hooks/access'
 import { useLoginSession } from '@/app/store/useAuth'
+import { toast } from 'sonner'
 
 export interface TableInfo{
   table_id:string;
@@ -17,6 +18,18 @@ function Posdisplaypanem() {
 const {users} = useLoginSession()
   const [processOrderModalOpen, setProcessOrderModalOpen] = useState(false)
   const [tables, setTables] = useState<null | TableInfo[]>([])
+  const [selectedTable, setSelectedTable] = useState('');
+const [selectedServer, setSelectedServer] = useState('');
+const [priority, setPriority] = useState('');
+const [numGuests, setNumGuests] = useState(0);
+const [remarks, setRemarks] = useState('');
+const [sessionType, setSessionType] = useState('');
+const [loading, setLoading] = useState(false)
+
+const [sessionId, setsessionId] = useState("")
+
+
+
 
   useEffect(()=>{
     const fetchTables = async ()=> {
@@ -36,6 +49,69 @@ setTables(res.tables)
 
     fetchTables()
   },[])
+
+
+  const handleProcessOrder = async () => {
+  // if (!selectedTable || !selectedServer || !priority ) {
+  //   toast.error("Please fill all required fields!");
+  //   return;
+  // }
+
+const orderData = {
+  tableId: selectedTable,
+  serverId: selectedServer,
+  priority,
+  numGuests: numGuests ,
+  remarks: remarks || undefined,
+  sessionType: sessionType || undefined,
+};
+
+console.log("order:",orderData);
+
+  try {
+    setLoading(true)
+    // Call your API or hook to create the session
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+const data = await useSessionCreation(
+  selectedTable,
+  numGuests,
+  orderData.sessionType,
+  orderData.remarks
+);
+
+if (data.status === "SUCCESS" || data.status_code === 200) {
+  toast.success("Order Processed Successfully!");
+setsessionId(data.session_id)
+  setSessionType("")
+  setSelectedTable("")
+  setRemarks("")
+setSelectedServer("")
+setPriority("")
+setNumGuests(0)
+} else {
+  toast.error("Failed to process order!");
+  console.log("Session creation error:", JSON.stringify(data, null, 2));
+}
+
+
+
+   
+   
+
+
+
+  
+  } catch (error) {
+    console.error("Error creating session:", error);
+    toast.error("An unexpected error occurred!");
+  }
+  finally{
+    setLoading(false)
+  }
+
+  console.log("Processing Order:", orderData);
+};
+
   return (
     <div className='flex flex-col w-1/2 gap-1 items-end'>
     <div className='border w-full rounded-lg py-3 h-164 border-black'  >
@@ -97,7 +173,9 @@ setTables(res.tables)
       Clear Order
     </button>
 
+<span className='text-red-600 font-bold'>{sessionId}</span>
   </div>
+
  
 </div>
 
@@ -120,10 +198,14 @@ setTables(res.tables)
       <div className="flex flex-col gap-3 w-full">
         {/* Table Select */}
         <label className="text-[#4B2E26] font-semibold">Select Table</label>
-        <select className="w-full border border-[#1E3932]/30 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#099c7f]">
+        <select
+          className="w-full border border-[#1E3932]/30 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#099c7f]"
+          value={selectedTable}
+          onChange={(e) => setSelectedTable(e.target.value)}
+        >
           <option value="">Select Table to Serve</option>
           {tables?.map((val) => (
-            <option key={val.table_id}>
+            <option key={val.table_id} value={val.table_id}>
               {val.table_name} - {val.table_number} - {val.status}
             </option>
           ))}
@@ -131,16 +213,26 @@ setTables(res.tables)
 
         {/* Server Select */}
         <label className="text-[#4B2E26] font-semibold">Select Server</label>
-        <select className="w-full border border-[#1E3932]/30 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#099c7f]">
+        <select
+          className="w-full border border-[#1E3932]/30 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#099c7f]"
+          value={selectedServer}
+          onChange={(e) => setSelectedServer(e.target.value)}
+        >
           <option value="">Select Server</option>
           {users?.map((val) => (
-            <option key={val.id}>{val.name}</option>
+            <option key={val.id} value={val.id}>
+              {val.name}
+            </option>
           ))}
         </select>
 
         {/* Priority */}
         <label className="text-[#4B2E26] font-semibold">Select Priority</label>
-        <select className="w-full border border-[#1E3932]/30 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#099c7f]">
+        <select
+          className="w-full border border-[#1E3932]/30 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#099c7f]"
+          value={priority}
+          onChange={(e) => setPriority(e.target.value)}
+        >
           <option value="">Select Priority</option>
           <option value="normal">Normal</option>
           <option value="high">High</option>
@@ -159,6 +251,8 @@ setTables(res.tables)
           min={0}
           placeholder="Number of guests"
           className="w-full border border-[#1E3932]/30 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#099c7f]"
+          value={numGuests}
+          onChange={(e) => setNumGuests(Number(e.target.value))}
         />
 
         {/* Remarks */}
@@ -167,11 +261,17 @@ setTables(res.tables)
           type="text"
           placeholder="Add remarks"
           className="w-full border border-[#1E3932]/30 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#099c7f]"
+          value={remarks}
+          onChange={(e) => setRemarks(e.target.value)}
         />
 
         {/* Session Type */}
         <label className="text-[#4B2E26] font-semibold">Select Session Type</label>
-        <select className="w-full border border-[#1E3932]/30 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#099c7f]">
+        <select
+          className="w-full border border-[#1E3932]/30 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#099c7f]"
+          value={sessionType}
+          onChange={(e) => setSessionType(e.target.value)}
+        >
           <option value="">Select Session</option>
           <option value="breakfast">Breakfast</option>
           <option value="lunch">Lunch</option>
@@ -188,9 +288,11 @@ setTables(res.tables)
         {/* Process Order */}
         <button
           type="button"
+          disabled={loading}
+          onClick={handleProcessOrder}
           className="w-full flex items-center justify-center gap-2 bg-[#D4AF37] py-2 font-semibold text-[#1E3932] rounded-md shadow-md hover:bg-[#c9a034] active:scale-95 transition-all"
         >
-          Process Order
+          {loading? "Processing Order":"Process Order"}
         </button>
 
         {/* Cancel Button */}
@@ -212,3 +314,4 @@ setTables(res.tables)
 }
 
 export default Posdisplaypanem
+

@@ -86,6 +86,7 @@ setUsers([res.user])
             type="text"
             name="username"
             placeholder="Enter name"
+            required
             value={userName}
             onChange={handleInputChange}
             className="border placeholder-black/70 text-black rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#D4A373]"
@@ -96,6 +97,7 @@ setUsers([res.user])
           <input
             type="password"
             name="password"
+            required
             value={password}
             onChange={handleInputChange}
             placeholder="Password"

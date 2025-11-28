@@ -49,3 +49,34 @@ export async function useRestrauntTables(){
     return null;
   }
 }
+
+
+
+export async function useSessionCreation(
+  table_id: string,
+  guest_count: number | string,
+  session_type?: string,
+  notes?: string
+) {
+  try {
+    const formData = new FormData();
+    formData.append("tp", "create_session");
+    formData.append("cp", "0_");
+    formData.append("table_id", table_id);
+    formData.append("guest_count", guest_count.toString());
+
+    if (session_type) formData.append("session_type", session_type);
+    if (notes) formData.append("notes", notes);
+
+    const response = await axios.postForm(
+      process.env.NEXT_PUBLIC_BASEURL as string,
+      formData
+    );
+
+    console.log("Session creation response:", response.data); // ✅ debug
+    return response.data; 
+  } catch (error: any) {
+    console.error("useSessionCreation error:", error.response || error);
+    return { status: "ERROR", message: error.message || "Request failed" };
+  }
+}
