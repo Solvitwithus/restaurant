@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { MenuItemsTypes } from "../components/dasrestaurosch/pos-displaypanem";
 
 interface LoginSession {
   token: string | null;
@@ -22,6 +23,25 @@ export const useLoginSession = create<LoginSession>()(
     }),
     {
       name: "login-session",
+    }
+  )
+);
+
+interface SelectedItemsState {
+  selectedItems: MenuItemsTypes[];
+  setSelectedItems: (data: MenuItemsTypes[]) => void;
+  clearSelectedItems: () => void;
+}
+
+export const useSelectedData = create<SelectedItemsState>()(
+  persist(
+    (set) => ({
+      selectedItems: [],
+      setSelectedItems: (data) => set({ selectedItems: data }),
+      clearSelectedItems: () => set({ selectedItems: [] }),
+    }),
+    {
+      name: "selected-items", // localStorage key
     }
   )
 );

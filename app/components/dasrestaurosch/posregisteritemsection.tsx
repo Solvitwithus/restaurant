@@ -4,21 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
-import Globe from "@/public/food.jpeg"
-export interface MenuItemsTypes {
-  stock_id: string;
-  name: string;
-  description: string;
-  price: number;
-  units: string;
-  category_id: string;
-  category_name: string;
-}
+import Globe from "@/public/food.jpeg";
+import { useSelectedData } from "@/app/store/useAuth";
+import { MenuItemsTypes } from "./pos-displaypanem";
 
 const Posregisteritemsection = () => {
+  const { setSelectedItems, selectedItems } = useSelectedData();
   const [menuItems, setMenuItems] = useState<MenuItemsTypes[]>([]);
-  const [loading, setLoading] = useState(false);
-
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
 
   useEffect(() => {
@@ -26,111 +19,106 @@ const Posregisteritemsection = () => {
       try {
         setLoading(true);
         const response = await getMenu();
-
-        if (response.status === "SUCCESS" || response.status == 200) {
-          setMenuItems(response.menu_items);
+        if (response.status === "SUCCESS" || response.status === 200) {
+          setMenuItems(response.menu_items || []);
         } else {
-          toast.error("Error Fetching Menu Items. Please check your internet connection!");
+          toast.error("Failed to load menu");
         }
-      } catch (e: unknown) {
-        console.log(e);
+      } catch (e) {
+        toast.error("Network error");
+        console.error(e);
       } finally {
         setLoading(false);
       }
     };
-
     fetchMenuItems();
   }, []);
 
-  // Unique category list
   const uniqueCategories = Array.from(
     new Map(menuItems.map((item) => [item.category_id, item])).values()
   );
 
-  // Filter items for selected category
   const filteredItems = selectedCategory
     ? menuItems.filter((i) => i.category_id === selectedCategory)
-    : [];
+    : menuItems;
+
+  const addItem = (item: MenuItemsTypes) => {
+    setSelectedItems([...selectedItems, item]);
+    toast.success(`${item.description} from category ${item.category_name} added`);
+  };
 
   return (
-    <div className="w-[49%] px-5 py-2 h-[90vh] border border-dotted border-[#c9184a]/50">
-
-      {/* navigation section */}
-      <div className="flex items-center gap-4 mb-3">
+    <div className="w-[49%] px-5 py-2 h-[90vh] border border-dotted border-[#c9184a]/50 overflow-hidden">
+      <div className="flex items-center gap-4 mb-4">
         <input
           type="text"
-          className="w-48 border border-black rounded-md px-2 py-1"
-          placeholder="search"
+          placeholder="Search items..."
+          className="w-64 border rounded-md px-3 py-2"
+          // You can add search here too if you want
         />
-        <Link href={"/sales-register"} className="text-[#099c7f] font-medium text-sm">Items</Link>
-        <Link href={"/stock-list"} className="text-[#4B2E26] font-medium text-sm">Item List</Link>
+        <Link href="/sales-register" className="text-[#099c7f] font-medium">
+          Items
+        </Link>
+        <Link href="/stock-list" className="text-[#4B2E26] font-medium">
+          Stock List
+        </Link>
       </div>
 
-      {/* category + items */}
-      <div className="flex gap-6">
-
-        {/* Category section */}
-        <div className="w-[25%] border min-h-[84vh] rounded-md max-h-[84vh] overflow-y-auto border-black/20 p-2">
-
+      <div className="flex gap-6 h-full">
+        {/* Categories */}
+        <div className="w-[25%] border rounded-lg p-3 overflow-y-auto max-h-[78vh]">
           {loading ? (
             <div className="flex justify-center py-10">
-              <div className="animate-spin h-6 w-6 border-2 border-[#3A5750] border-t-transparent rounded-full"></div>
+              <div className="animate-spin h-8 w-8 border-4 border-[#099c7f] border-t-transparent rounded-full"></div>
             </div>
           ) : (
             uniqueCategories.map((cat) => (
               <div
                 key={cat.category_id}
                 onClick={() => setSelectedCategory(cat.category_id)}
-                className={`text-sm py-2 px-3 rounded-md my-2 cursor-pointer transition-all 
-                  ${
-                    selectedCategory === cat.category_id
-                      ? "bg-[#3A5750] text-white"
-                      : "bg-[#E6DED2] text-[#3A5750] hover:bg-[#D8CFC2]"
+                className={`p-3 rounded-lg cursor-pointer text-sm font-medium mb-2 transition
+                  ${selectedCategory === cat.category_id
+                    ? "bg-[#3A5750] text-white"
+                    : "bg-[#E6DED2] hover:bg-[#D8CFC2]"
                   }`}
               >
                 {cat.category_name}
               </div>
             ))
           )}
-
         </div>
 
-        {/* Items section */}
-        <div className="w-full border border-black/10 rounded-md p-2 min-h-[84vh] overflow-y-auto">
-
-          {selectedCategory === "" ? (
-            <p className="text-center text-gray-500 mt-10">Select a category to view items</p>
+        {/* Items Grid */}
+        <div className="flex-1 border rounded-lg p-4 overflow-y-auto">
+          {!selectedCategory ? (
+            <p className="text-center text-gray-500 mt-20">Select a category</p>
           ) : filteredItems.length === 0 ? (
-            <p className="text-center text-gray-500 mt-10">No items found in this category</p>
+            <p className="text-center text-gray-500 mt-20">No items in this category</p>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {filteredItems.map((item) => (
                 <div
                   key={item.stock_id}
-                  className="bg-white shadow-md rounded-md p-2 flex flex-col items-center hover:shadow-lg transition"
+                  onClick={() => addItem(item)}
+                  className="bg-white rounded-lg shadow hover:shadow-xl transition cursor-pointer p-3 text-center"
                 >
-                  {/* Dummy Image */}
-                  <div className="w-20 h-20 bg-gray-200 rounded-md flex items-center justify-center mb-2">
-<Image
-  width={80}
-  height={80}
-  src={Globe}
-  alt="item"
-  className="w-full h-full object-cover rounded-md"
-/>
-
-
+                  <div className="w-20 h-20 mx-auto mb-2 bg-gray-200 rounded overflow-hidden">
+                    <Image
+                      src={Globe}
+                      alt={item.description}
+                      width={80}
+                      height={80}
+                      className="object-cover w-full h-full"
+                    />
                   </div>
-
-                  <p className="text-sm font-semibold text-gray-800">{item.description}</p>
-                  <p className="text-xs text-gray-500">{item.units}</p>
+                  <p className="font-semibold text-sm line-clamp-2">{item.description}</p>
+                  <p className="text-xs text-gray-500 mt-1">KSHs: {item.price}</p>
+                  <p className="text-xs text-gray-400">{item.units}</p>
                 </div>
               ))}
             </div>
           )}
-
         </div>
-
       </div>
     </div>
   );
