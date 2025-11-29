@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import Globe from "@/public/food.jpeg";
 import { useSelectedData } from "@/app/store/useAuth";
 import { MenuItemsTypes } from "./pos-displaypanem";
+import { div } from "motion/react-client";
 
 const Posregisteritemsection = () => {
   const { setSelectedItems, selectedItems } = useSelectedData();
@@ -91,8 +92,53 @@ const Posregisteritemsection = () => {
         {/* Items Grid */}
         <div className="flex-1 border rounded-lg p-4 overflow-y-auto">
           {!selectedCategory ? (
-            <p className="text-center text-gray-500 mt-20">Select a category</p>
-          ) : filteredItems.length === 0 ? (
+  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+    {/* Card Mock 1 */}
+    <div className="bg-[#F7F5EE]/20 rounded-lg shadow p-3 animate-pulse">
+      <div className="w-20 h-20 mx-auto bg-gray-300/20 rounded mb-3"></div>
+      <div className="h-3 w-24 bg-gray-300/30 mx-auto rounded mb-2"></div>
+      <div className="h-3 w-16 bg-gray-200 mx-auto rounded"></div>
+    </div>
+
+    {/* Card Mock 2 */}
+    <div className="bg-[#F7F5EE]/20 rounded-lg shadow p-3 animate-pulse">
+      <div className="w-20 h-20 mx-auto bg-gray-300/20 rounded mb-3"></div>
+      <div className="h-3 w-24 bg-gray-300/30 mx-auto rounded mb-2"></div>
+      <div className="h-3 w-16 bg-gray-200 mx-auto rounded"></div>
+    </div>
+
+    {/* Card Mock 3 */}
+     <div className="bg-[#F7F5EE]/20 rounded-lg shadow p-3 animate-pulse">
+      <div className="w-20 h-20 mx-auto bg-gray-300/20 rounded mb-3"></div>
+      <div className="h-3 w-24 bg-gray-300/30 mx-auto rounded mb-2"></div>
+      <div className="h-3 w-16 bg-gray-200 mx-auto rounded"></div>
+    </div>
+
+    {/* Card Mock 4 */}
+     <div className="bg-[#F7F5EE]/20 rounded-lg shadow p-3 animate-pulse">
+      <div className="w-20 h-20 mx-auto bg-gray-300/20 rounded mb-3"></div>
+      <div className="h-3 w-24 bg-gray-300/30 mx-auto rounded mb-2"></div>
+      <div className="h-3 w-16 bg-gray-200 mx-auto rounded"></div>
+    </div>
+
+      {/* Card Mock 3 */}
+      <div className="bg-[#F7F5EE]/20 rounded-lg shadow p-3 animate-pulse">
+      <div className="w-20 h-20 mx-auto bg-gray-300/20 rounded mb-3"></div>
+      <div className="h-3 w-24 bg-gray-300/30 mx-auto rounded mb-2"></div>
+      <div className="h-3 w-16 bg-gray-200 mx-auto rounded"></div>
+    </div>
+
+    {/* Card Mock 4 */}
+     <div className="bg-[#F7F5EE]/20 rounded-lg shadow p-3 animate-pulse">
+      <div className="w-20 h-20 mx-auto bg-gray-300/20 rounded mb-3"></div>
+      <div className="h-3 w-24 bg-gray-300/30 mx-auto rounded mb-2"></div>
+      <div className="h-3 w-16 bg-gray-200 mx-auto rounded"></div>
+    </div>
+    
+  </div>
+  
+) 
+ : filteredItems.length === 0 ? (
             <p className="text-center text-gray-500 mt-20">No items in this category</p>
           ) : (
             <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">

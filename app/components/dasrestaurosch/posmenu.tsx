@@ -2,15 +2,18 @@
 // components/dasrestaurosch/posmenu.tsx
 import React from 'react';
 import Globe from "@/public/globe.svg";
+import Kitchen from "@/public/kitchen.svg"
+import Report from "@/public/report.svg"
 import HomeIcon from "@/public/homeIcon.svg";
 import Image from 'next/image';
 import Link from 'next/link';
+import Inventory from "@/public/inventory.svg"
 import { usePathname,useRouter } from 'next/navigation';
 import { useLoginSession } from '@/app/store/useAuth';
 interface LandingPage {
   name: string;
   path: string;
-  icon: any;
+  icon: unknown;
 }
 
 
@@ -21,9 +24,9 @@ function Menu() {
   const router = useRouter()
   const displayPanel: LandingPage[] = [
     { name: "Sales Register", path: "/sales-register", icon: HomeIcon },
-    { name: "Stock List", path: "/stock-list", icon: Globe },
-    { name: "Kitchen Display", path: "/kitchen-display", icon: Globe },
-    { name: "Reports", path: "/reports", icon: Globe },
+    { name: "Stock List", path: "/stock-list", icon: Inventory },
+    { name: "Kitchen Display", path: "/kitchen-display", icon: Kitchen },
+    { name: "Reports", path: "/reports", icon: Report },
   ];
 
   return (
@@ -81,7 +84,7 @@ function Menu() {
       localStorage.removeItem("login-session");
     }}
     
-    href="https://res.digerp.com/index.php"
+    href={process.env.NEXT_PUBLIC_EXIT_URL as string}
     className="text-gray-600 hover:underline text-sm font-medium"
   >
     Exit
