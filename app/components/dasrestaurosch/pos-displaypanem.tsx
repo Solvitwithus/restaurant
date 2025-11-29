@@ -28,9 +28,23 @@ export interface MenuItemsTypes {
   category_name: string;
 }
 
+export interface ServerInfo {
+  status: string;  
+  token: string;  
+  user: {
+    id: string;
+    username: string;
+    name: string;
+    role: string;
+    store: string;
+  };
+  timestamp: string;
+}
+
+
 function Posdisplaypanem() {
   const { clearSelectedItems, selectedItems, setSelectedItems } = useSelectedData();
-  const { users } = useLoginSession();
+  const { users }= useLoginSession();
 
   const [processOrderModalOpen, setProcessOrderModalOpen] = useState(false);
   const [tables, setTables] = useState<TableInfo[]>([]);
@@ -142,7 +156,7 @@ const [priority, setPriority] = useState('');
   return (
     <div className="flex flex-col w-1/2 gap-4 items-end">
       {/* Main Cart Panel */}
-      <div className="w-full border border-black rounded-lg bg-white shadow-lg">
+        <div className='border w-full rounded-lg py-3 h-164 border-black' >
         {/* Header + Search */}
         <div className="sticky top-0 bg-white border-b border-gray-300 p-4 z-10">
           <div className="flex justify-between items-center mb-4">
@@ -204,7 +218,7 @@ const [priority, setPriority] = useState('');
         </div>
 
         {/* Selected Items List */}
-        <div className="p-4 max-h-96 overflow-y-auto">
+        <div className="p-4 max-h-128 overflow-y-auto">
           <h3 className="font-bold text-lg mb-3">Selected Items ({selectedItems.length})</h3>
           {selectedItems.length === 0 ? (
             <p className="text-center text-gray-500 py-10">No items added yet</p>
@@ -240,7 +254,7 @@ const [priority, setPriority] = useState('');
       </div>
 
       {/* Totals & Action Buttons */}
-      <div className="w-[85%] bg-amber-50 border border-red-600/30 rounded-xl p-5 shadow">
+      <div className="w-[85%] bg-[#F6EFE7] border border-red-600/30 rounded-xl p-5 shadow">
         <div className="space-y-3 mb-5">
           <div className="flex justify-between text-lg">
             <span className="font-bold">Total:</span>
@@ -252,26 +266,44 @@ const [priority, setPriority] = useState('');
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => setProcessOrderModalOpen(true)}
-            disabled={selectedItems.length === 0}
-            className="bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 disabled:opacity-50"
-          >
-            Place Order
-          </button>
-          <button className="bg-green-600 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2">
-            <Pause className="h-5 w-5" /> Hold
-          </button>
-          <button className="bg-teal-700 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2 col-span-2">
-            <PlayIcon className="h-5 w-5" /> Held Orders
-          </button>
-          <button
-            onClick={clearSelectedItems}
-            className="bg-gray-800 text-white py-3 rounded-lg font-bold"
-          >
-            Clear All
-          </button>
+        <div className="flex gap-5 justify-between mt-4">
+            <button
+      type="button"
+      onClick={()=>setProcessOrderModalOpen(true)}
+      className="flex-1 bg-[#c9184a] py-2 font-semibold text-white rounded-md 
+                 shadow-sm cursor-pointer hover:bg-[#a3153e] active:scale-95 transition-all"
+    >
+      Place Order
+    </button>
+
+ <button
+  type="button"
+  className="flex-1 flex items-center justify-center gap-2 bg-[#099c7f] py-2 
+             font-semibold cursor-pointer text-white rounded-md shadow-sm
+             hover:bg-[#077d66] active:scale-95 transition-all"
+>
+  <Pause height={18} width={18} className="text-white" />
+  Hold Order
+</button>
+
+
+ <button
+  type="button"
+  className="flex-1 flex items-center justify-center gap-2 bg-[#086d59] py-2 
+             font-semibold cursor-pointer text-white rounded-md shadow-sm
+             hover:bg-[#077d66] active:scale-95 transition-all"
+>
+  <PlayIcon height={18} width={18} className="text-white" />
+  Held Orders
+</button>
+
+    <button
+      type="button"
+      className="flex-1 bg-[#4B2E26] py-2 font-semibold text-white rounded-md 
+                 shadow-sm cursor-pointer hover:bg-[#3a221d] active:scale-95 transition-all"
+    >
+      Clear Order
+    </button>
         </div>
       </div>
 
@@ -312,9 +344,9 @@ const [priority, setPriority] = useState('');
           onChange={(e) => setSelectedServer(e.target.value)}
         >
           <option value="">Select Server</option>
-          {users?.map((val) => (
-            <option key={val.id} value={val.id}>
-              {val.name}
+          {users?.map((val:ServerInfo) => (
+            <option key={val?.user?.id} value={val?.user?.id}>
+              {val?.user?.name}
             </option>
           ))}
         </select>

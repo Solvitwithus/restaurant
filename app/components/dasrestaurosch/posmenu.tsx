@@ -1,7 +1,7 @@
 "use client"
 // components/dasrestaurosch/posmenu.tsx
 import React from 'react';
-import Globe from "@/public/globe.svg";
+
 import Kitchen from "@/public/kitchen.svg"
 import Report from "@/public/report.svg"
 import HomeIcon from "@/public/homeIcon.svg";
@@ -13,7 +13,7 @@ import { useLoginSession } from '@/app/store/useAuth';
 interface LandingPage {
   name: string;
   path: string;
-  icon: unknown;
+  icon: string;
 }
 
 

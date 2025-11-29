@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import Globe from "@/public/food.jpeg";
 import { useSelectedData } from "@/app/store/useAuth";
 import { MenuItemsTypes } from "./pos-displaypanem";
-import { div } from "motion/react-client";
+
 
 const Posregisteritemsection = () => {
   const { setSelectedItems, selectedItems } = useSelectedData();

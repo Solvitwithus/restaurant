@@ -1,12 +1,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { MenuItemsTypes } from "../components/dasrestaurosch/pos-displaypanem";
-
+import { ServerInfo } from "../components/dasrestaurosch/pos-displaypanem";
 interface LoginSession {
   token: string | null;
   setToken: (token: string) => void;
-  setUsers: (data: any[]) => void; // store as array
-  users: any[]; // array type
+  setUsers: (data: ServerInfo[]) => void; // store as array
+  users: ServerInfo[]; // array type
   clearToken: () => void;
   clearUsers: () => void;
 }
