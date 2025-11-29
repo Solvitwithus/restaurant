@@ -65,9 +65,9 @@ const Posregisteritemsection = () => {
         </Link>
       </div>
 
-      <div className="flex gap-6 h-full">
+      <div className="flex gap-6 max-h-[82vh]">
         {/* Categories */}
-        <div className="w-[25%] border rounded-lg p-3 overflow-y-auto max-h-[78vh]">
+        <div className="w-[25%] border rounded-lg p-3 overflow-y-auto max-h-[82vh]">
           {loading ? (
             <div className="flex justify-center py-10">
               <div className="animate-spin h-8 w-8 border-4 border-[#099c7f] border-t-transparent rounded-full"></div>
@@ -92,7 +92,7 @@ const Posregisteritemsection = () => {
         {/* Items Grid */}
         <div className="flex-1 border rounded-lg p-4 overflow-y-auto">
           {!selectedCategory ? (
-  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 ">
     {/* Card Mock 1 */}
     <div className="bg-[#F7F5EE]/20 rounded-lg shadow p-3 animate-pulse">
       <div className="w-20 h-20 mx-auto bg-gray-300/20 rounded mb-3"></div>
