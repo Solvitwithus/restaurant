@@ -40,7 +40,7 @@ if(res.status ==="SUCCESS"){
 setTables(res.tables)
 }
       }
-      catch(e:any){
+      catch(e:unknown){
         console.log(e);
         
       }

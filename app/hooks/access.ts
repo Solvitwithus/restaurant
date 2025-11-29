@@ -1,16 +1,13 @@
 import axios from "axios";
 
-type Login = {
-  username: string;
-  password: string;
-};
+
 
 
 
 export async function useLogin(
   username: string,
   password: string
-): Promise<any> {
+): Promise<unknown> {
   try {
     const formData = new FormData();
     formData.append("tp", "pos_login");
@@ -78,5 +75,25 @@ export async function useSessionCreation(
   } catch (error: any) {
     console.error("useSessionCreation error:", error.response || error);
     return { status: "ERROR", message: error.message || "Request failed" };
+  }
+}
+
+
+export async function getMenu(){
+    try{
+  const formData = new FormData();
+  formData.append("tp","get_menu");
+  formData.append("cp", "0_");
+
+    const response = await axios.postForm(
+      process.env.NEXT_PUBLIC_BASEURL as string,
+      formData
+    );
+
+    return response.data;
+  }
+  catch (error) {
+    console.error("Login Error:", error);
+    return null;
   }
 }
