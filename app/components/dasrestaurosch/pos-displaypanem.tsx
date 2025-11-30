@@ -7,6 +7,7 @@ import { getMenu } from '@/app/hooks/access';
 import { toast } from 'sonner';
 import Image from 'next/image';
 import Globe from '@/public/food.jpeg';
+import axios from 'axios';
 
 export interface TableInfo {
   table_id: string;
@@ -56,7 +57,8 @@ const [priority, setPriority] = useState('');
   const [remarks, setRemarks] = useState('');
   const [sessionType, setSessionType] = useState('');
   const [loading, setLoading] = useState(false);
-
+const [holdOrderSnip, setholdOrderSnip] = useState(false)
+const [orderName, setorderName] = useState<string>("")
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
   const [showResults, setShowResults] = useState(false);
@@ -152,6 +154,42 @@ const [priority, setPriority] = useState('');
       setLoading(false);
     }
   };
+
+const handleHold = async () => {
+  if (!orderName.trim()) {
+    toast.error("Please provide an order name");
+    return;
+  }
+
+  if (selectedItems.length === 0) {
+    toast.error("No items to hold");
+    return;
+  }
+
+  try {
+    const payload = { orderName, selectedItems };
+
+
+    console.log("payload:",payload);
+    
+
+    const response = await axios.post("/api/orders", payload);
+
+    if (response.data.status === "SUCCESS") {
+      toast.success("Order held successfully");
+      setholdOrderSnip(false);
+      clearSelectedItems(); // optionally clear after holding
+      setorderName("");
+    } else {
+      toast.error("Failed to hold order");
+      console.error(response.data);
+    }
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to hold order");
+  }
+};
+
 
   return (
     <div className="flex flex-col w-1/2 gap-4 items-end">
@@ -281,6 +319,7 @@ const [priority, setPriority] = useState('');
   className="flex-1 flex items-center justify-center gap-2 bg-[#099c7f] py-2 
              font-semibold cursor-pointer text-white rounded-md shadow-sm
              hover:bg-[#077d66] active:scale-95 transition-all"
+             onClick={()=>{setholdOrderSnip(true)}}
 >
   <Pause height={18} width={18} className="text-white" />
   Hold Order
@@ -431,6 +470,27 @@ const [priority, setPriority] = useState('');
         </button>
       </div>
     </div>
+  </div>
+)}
+
+
+{holdOrderSnip && (
+   <div className="flex flex-col gap-2 w-full">
+    <input type='text' placeholder='order name' value={orderName} onChange={(e)=>{setorderName(e.target.value)}}
+     className="border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+    />
+     <button
+          type="button"
+          
+          onClick={
+            handleHold
+
+            
+          }
+          className="w-full flex items-center justify-center gap-2 bg-[#D4AF37] py-2 font-semibold text-[#1E3932] rounded-md shadow-md hover:bg-[#c9a034] active:scale-95 transition-all"
+        >
+          Hold order
+        </button>
   </div>
 )}
     </div>
