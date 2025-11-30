@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, useMemo } from 'react';
-import { Pause, PlayIcon, Search, SidebarCloseIcon, X } from 'lucide-react';
+import { Pause, PlayIcon, Search, SidebarCloseIcon, X,LockIcon ,Trash2} from 'lucide-react';
 import { useRestrauntTables, useSessionCreation } from '@/app/hooks/access';
 import { useLoginSession, useSelectedData } from '@/app/store/useAuth';
 import { getMenu } from '@/app/hooks/access';
@@ -28,6 +28,22 @@ export interface MenuItemsTypes {
   category_id: string;
   category_name: string;
 }
+
+export interface RestureItemsTypes {
+  id?: string;
+  orderName: string;
+  createdAt: string;
+  items: {
+    stock_id: string;
+    name: string;
+    description: string;
+    price: number;
+    units: string;
+    category_id: string;
+    category_name: string;
+  }[];
+}
+
 
 export interface ServerInfo {
   status: string;  
@@ -62,6 +78,9 @@ const [orderName, setorderName] = useState<string>("")
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
   const [showResults, setShowResults] = useState(false);
+
+  const [heldOrdersOpen, setHeldOrdersOpen] = useState(false);
+const [heldOrders, setHeldOrders] = useState<RestureItemsTypes[]>([]);
 
   // Fetch tables
   useEffect(() => {
@@ -167,26 +186,28 @@ const handleHold = async () => {
   }
 
   try {
+    setLoading(true);
     const payload = { orderName, selectedItems };
-
-
-    console.log("payload:",payload);
-    
+    console.log("payload:", payload);
 
     const response = await axios.post("/api/orders", payload);
-
     if (response.data.status === "SUCCESS") {
-      toast.success("Order held successfully");
-      setholdOrderSnip(false);
-      clearSelectedItems(); // optionally clear after holding
-      setorderName("");
+    toast.success("Order held successfully");
+    setholdOrderSnip(false);
+    clearSelectedItems();
+    setorderName("");
+    }
+  } catch (error: any) {
+    console.error(error);
+
+    // Handle Axios error status
+    if (error.response?.status === 409) {
+      toast.error("Order name already exists");
     } else {
       toast.error("Failed to hold order");
-      console.error(response.data);
     }
-  } catch (error) {
-    console.error(error);
-    toast.error("Failed to hold order");
+  } finally {
+    setLoading(false);
   }
 };
 
@@ -326,21 +347,44 @@ const handleHold = async () => {
 </button>
 
 
- <button
+<button
   type="button"
-  className="flex-1 flex items-center justify-center gap-2 bg-[#086d59] py-2 
-             font-semibold cursor-pointer text-white rounded-md shadow-sm
-             hover:bg-[#077d66] active:scale-95 transition-all"
+  className={`flex-1 cursor-pointer
+    ${loading ? "bg-[#086d59]/60 pointer-events-none" : "bg-[#086d59]"}
+    flex items-center justify-center gap-2 py-2 
+    font-semibold text-white rounded-md shadow-sm
+    hover:bg-[#077d66] active:scale-95 transition-all`}
+  onClick={async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get("/api/orders");
+      if (res.data.status === "SUCCESS") {
+        setHeldOrders(res.data.orders);
+        setHeldOrdersOpen(true);
+      }
+    } catch (err: unknown) {
+      console.error(err);
+      toast.error("Failed to load held orders");
+    } finally {
+      setLoading(false);
+    }
+  }}
+  disabled={loading} // disables native button click
 >
   <PlayIcon height={18} width={18} className="text-white" />
-  Held Orders
+  {loading ? "Fetching Orders" : "Held Orders"}
 </button>
+
+
+
 
     <button
       type="button"
+      onClick={()=>clearSelectedItems()}
       className="flex-1 bg-[#4B2E26] py-2 font-semibold text-white rounded-md 
                  shadow-sm cursor-pointer hover:bg-[#3a221d] active:scale-95 transition-all"
     >
+      
       Clear Order
     </button>
         </div>
@@ -383,11 +427,15 @@ const handleHold = async () => {
           onChange={(e) => setSelectedServer(e.target.value)}
         >
           <option value="">Select Server</option>
-          {users?.map((val:ServerInfo) => (
-            <option key={val?.user?.id} value={val?.user?.id}>
-              {val?.user?.name}
-            </option>
-          ))}
+        {users?.map((val: ServerInfo, index) => (
+  <option 
+    key={val?.user?.id ?? index} 
+    value={val?.user?.id}
+  >
+    {val?.user?.name}
+  </option>
+))}
+
         </select>
 
         {/* Priority */}
@@ -475,24 +523,163 @@ const handleHold = async () => {
 
 
 {holdOrderSnip && (
-   <div className="flex flex-col gap-2 w-full">
-    <input type='text' placeholder='order name' value={orderName} onChange={(e)=>{setorderName(e.target.value)}}
-     className="border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-    />
-     <button
-          type="button"
-          
-          onClick={
-            handleHold
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+    <div className="bg-white w-full max-w-md rounded-xl shadow-lg p-6 relative animate-in fade-in zoom-in duration-200">
 
-            
+      {/* Close Button */}
+      <button
+        onClick={() => setholdOrderSnip(false)}
+        className="absolute right-4 top-4 text-gray-600 hover:text-black transition"
+      >
+        <X size={20} />
+      </button>
+
+      <h2 className="text-xl font-semibold text-[#1E3932] mb-4">Hold Order</h2>
+
+      {/* Input */}
+      <input
+        type="text"
+        placeholder="Order name"
+        value={orderName}
+        onChange={(e) => setorderName(e.target.value)}
+        className="border w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#099c7f] mb-4"
+      />
+
+      {/* Button */}
+      <button
+        type="button"
+        disabled={loading}
+        onClick={handleHold}
+        className={`w-full flex items-center justify-center gap-2 py-2 font-semibold rounded-md shadow-md active:scale-95 transition-all
+          ${
+            loading
+              ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+              : "bg-[#D4AF37] text-[#1E3932] hover:bg-[#c9a034]"
           }
-          className="w-full flex items-center justify-center gap-2 bg-[#D4AF37] py-2 font-semibold text-[#1E3932] rounded-md shadow-md hover:bg-[#c9a034] active:scale-95 transition-all"
-        >
-          Hold order
-        </button>
+        `}
+      >
+        {loading ? "Please wait..." : "Hold order"}
+      </button>
+
+    </div>
   </div>
 )}
+
+
+{heldOrdersOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center">
+    {/* Backdrop */}
+    <div
+      className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+      onClick={() => setHeldOrdersOpen(false)}
+    />
+
+    {/* Modal */}
+    <div className="relative z-50 bg-white rounded-xl shadow-2xl p-5 w-[90%] max-w-[1200px] max-h-[80vh] overflow-y-auto">
+      <h2 className="font-bold text-xl mb-4 text-center text-[#1E3932]">
+        Held Orders
+      </h2>
+
+      {heldOrders.length === 0 ? (
+        <p className="text-center text-gray-500">No held orders found</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 border-t border-black/30 pt-3">
+          {heldOrders.map((order) => (
+            <div
+              key={order.id}
+              className="relative p-4 border rounded-lg shadow-sm bg-gray-50 hover:bg-green-50 transition"
+            >
+              {/* Delete icon */}
+            <button
+  className="absolute top-2 right-2 z-10 text-red-500 hover:scale-125 hover:text-green-900"
+  onClick={async (e) => {
+    e.stopPropagation(); // Prevent restore
+
+    if (!confirm(`Are you sure you want to delete order "${order.orderName}"?`)) return;
+
+ try {
+   const response = await axios.delete(`/api/orders?orderName=${order.orderName}`);
+    if (response.data.status === "SUCCESS") {
+      toast.success(`Order "${orderName}" deleted`);
+      setHeldOrders((prev) => prev.filter((o) => o.orderName !== orderName));
+      setHeldOrdersOpen(false)
+    } else {
+      toast.error("Failed to delete order");
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to delete order");
+  }
+  }}
+>
+                <Trash2 size={16} />
+              </button>
+
+              {/* Order name */}
+              <div className="mb-2">
+                <h6 className="text-[0.75rem] text-[#c9184a]">Hold Name:</h6>
+                <p className="font-semibold text-lg text-[#086d59]">
+                  {order.orderName}
+                </p>
+              </div>
+
+              {/* Items count and time */}
+              <p className="text-sm text-gray-600 mb-3">
+                {order.items.length} items •{" "}
+                {new Date(order.createdAt).toLocaleTimeString()}
+              </p>
+
+              {/* Restore hint */}
+              <div className="flex justify-between items-center text-[0.75rem] text-black/50 mb-2">
+                <span>Click this order to restore</span>
+                <LockIcon size={12} className="text-red-700" />
+              </div>
+
+              {/* Click to restore */}
+             <div
+  className="absolute inset-0 z-0"
+  onClick={async () => {
+    const restoredItems = order.items.map((i) => ({
+      stock_id: i.stock_id,
+      name: i.name,
+      description: i.description,
+      price: i.price,
+      units: i.units,
+      category_id: i.category_id,
+      category_name: i.category_name,
+    }));
+
+    setSelectedItems(restoredItems);
+    setHeldOrdersOpen(false);
+    toast.success(`Order "${order.orderName}" restored`);
+
+    try {
+      const response = await axios.patch(
+        `/api/orders?orderName=${encodeURIComponent(order.orderName)}`
+      );
+      if (response.data.status === 200) {
+        toast.success("Status Updated!");
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error("Error Updating Status");
+    }
+  }}
+/>
+
+            </div>
+
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
+
+
+
+
     </div>
   );
 }

@@ -14,7 +14,8 @@ datasource db {
 }
 model Order {
   id        Int         @id @default(autoincrement())
-  orderName String
+  orderName String @unique
+  status    String      @default("New")  // Added status field
   items     OrderItem[] @relation("OrderToItems")
   createdAt DateTime    @default(now())
 }
@@ -31,3 +32,4 @@ model OrderItem {
   category_id String?
   createdAt   DateTime @default(now())
 }
+
