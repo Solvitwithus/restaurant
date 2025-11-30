@@ -4,7 +4,7 @@ import axios from "axios";
 
 
 
-export async function useLogin(
+export async function Login(
   username: string,
   password: string
 ): Promise<unknown> {
@@ -49,7 +49,7 @@ export async function useRestrauntTables(){
 
 
 
-export async function useSessionCreation(
+export async function SessionCreation(
   table_id: string,
   guest_count: number | string,
   session_type?: string,
@@ -72,10 +72,25 @@ export async function useSessionCreation(
 
     console.log("Session creation response:", response.data); // ✅ debug
     return response.data; 
-  } catch (error: any) {
+  } catch (error: unknown) {
+  if (axios.isAxiosError(error)) {
     console.error("useSessionCreation error:", error.response || error);
-    return { status: "ERROR", message: error.message || "Request failed" };
+
+    return { 
+      status: "ERROR", 
+      message: error.response?.data?.message || error.message || "Request failed" 
+    };
   }
+
+  // Non-Axios error
+  console.error("useSessionCreation error:", error);
+
+  return { 
+    status: "ERROR", 
+    message: error instanceof Error ? error.message : "Request failed" 
+  };
+}
+
 }
 
 

@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useMemo } from 'react';
 import { Pause, PlayIcon, Search, SidebarCloseIcon, X,LockIcon ,Trash2} from 'lucide-react';
-import { useRestrauntTables, useSessionCreation } from '@/app/hooks/access';
+import { SessionCreation, useRestrauntTables } from '@/app/hooks/access';
 import { useLoginSession, useSelectedData } from '@/app/store/useAuth';
 import { getMenu } from '@/app/hooks/access';
 import { toast } from 'sonner';
@@ -47,7 +47,9 @@ export interface RestureItemsTypes {
 
 export interface ServerInfo {
   status: string;  
+  id: string;
   token: string;  
+   name: string;
   user: {
     id: string;
     username: string;
@@ -156,13 +158,13 @@ const [heldOrders, setHeldOrders] = useState<RestureItemsTypes[]>([]);
 
     try {
       setLoading(true);
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const data = await useSessionCreation(selectedTable, numGuests, sessionType || undefined, remarks || undefined);
+   
+      const data = await SessionCreation(selectedTable, numGuests, sessionType || undefined, remarks || undefined);
 
       if (data.status === "SUCCESS" || data.status_code === 200) {
-        toast.success("Order Processed Successfully!");
+        toast.success("Session Created!");
         setProcessOrderModalOpen(false);
-        // clearSelectedItems(); // Uncomment if you want to clear after order
+        
       } else {
         toast.error("Failed to process order");
       }
@@ -197,19 +199,31 @@ const handleHold = async () => {
     clearSelectedItems();
     setorderName("");
     }
-  } catch (error: any) {
-    console.error(error);
+} catch (error: unknown) {
+  console.error(error);
 
-    // Handle Axios error status
+  if (axios.isAxiosError(error)) {
+    // Axios-specific error handling
     if (error.response?.status === 409) {
       toast.error("Order name already exists");
     } else {
       toast.error("Failed to hold order");
     }
-  } finally {
-    setLoading(false);
+  } else {
+    // Non-Axios error (unexpected)
+    toast.error("Unexpected error occurred");
   }
+
+} finally {
+  setLoading(false);
+}
+
 };
+
+
+
+
+
 
 
   return (
@@ -327,6 +341,8 @@ const handleHold = async () => {
 
         <div className="flex gap-5 justify-between mt-4">
             <button
+
+           disabled={selectedItems.length <= 0}
       type="button"
       onClick={()=>setProcessOrderModalOpen(true)}
       className="flex-1 bg-[#c9184a] py-2 font-semibold text-white rounded-md 
@@ -421,20 +437,29 @@ const handleHold = async () => {
 
         {/* Server Select */}
         <label className="text-[#4B2E26] font-semibold">Select Server</label>
-        <select
-          className="w-full border border-[#1E3932]/30 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#099c7f]"
-          value={selectedServer}
-          onChange={(e) => setSelectedServer(e.target.value)}
-        >
-          <option value="">Select Server</option>
-        {users?.map((val: ServerInfo, index) => (
-  <option 
-    key={val?.user?.id ?? index} 
-    value={val?.user?.id}
-  >
-    {val?.user?.name}
-  </option>
-))}
+    <select
+  className="w-full border border-[#1E3932]/30 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#099c7f]"
+  value={selectedServer}
+  onChange={(e) => setSelectedServer(e.target.value)}
+>
+  <option value="" disabled>-- Select User --</option>
+
+  {users.length > 0 ? (
+    users.map((val, index) => (
+      <option 
+        key={val.id ?? index}
+        value={val.id}
+      >
+        {val.name}
+      </option>
+    ))
+  ) : (
+    <option value="">No user currently</option>
+  )}
+
+
+
+
 
         </select>
 

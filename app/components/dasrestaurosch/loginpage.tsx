@@ -1,11 +1,12 @@
 "use client";
-import { useLogin } from "@/app/hooks/access";
+import { Login } from "@/app/hooks/access";
 import { ShineBorder } from "@/components/ui/shine-border";
 import { TypingAnimation } from "@/components/ui/typing-animation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useLoginSession } from "@/app/store/useAuth";
+
 export default function LoginCard() {
   const router = useRouter();
 const {token,setToken,setUsers} = useLoginSession()
@@ -36,11 +37,11 @@ const {token,setToken,setUsers} = useLoginSession()
          toast.error("Please Enter all credentials") 
          return
       }
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const res = await useLogin(userName, password);
-setToken(res.token)
-setUsers([res.user])
-      if (res && res.status === "SUCCESS") {
+      
+      const res = await Login(userName, password);
+setToken(res?.token)
+setUsers([res?.user])
+      if (res && res?.status === "SUCCESS") {
         router.push("/sales-register");
       } else {
         console.log("Login failed:", res);
