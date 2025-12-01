@@ -1,3 +1,9 @@
+
+
+/**
+ * @author John Kamiru Mwangi
+ * @
+ */
 import axios from "axios";
 
 
@@ -28,7 +34,7 @@ export async function Login(
 }
 
 
-export async function useRestrauntTables(){
+export async function RestrauntTables(){
   try{
   const formData = new FormData();
   formData.append("tp","get_tables");
@@ -99,6 +105,97 @@ export async function getMenu(){
   const formData = new FormData();
   formData.append("tp","get_menu");
   formData.append("cp", "0_");
+
+    const response = await axios.postForm(
+      process.env.NEXT_PUBLIC_BASEURL as string,
+      formData
+    );
+
+    return response.data;
+  }
+  catch (error) {
+    console.error("Login Error:", error);
+    return null;
+  }
+}
+
+
+export async function CreateOrderItem({
+  session_id,
+  item_code,
+  quantity,
+  client_name,
+  notes,
+}: {
+  session_id: string;
+  item_code: string;
+  quantity: number;
+  client_name?: string;
+  notes?: string;
+}) {
+  console.log("Hi i am touched");
+
+  try {
+    const formData = new FormData();
+    formData.append("tp", "create_order"); // REQUIRED
+    formData.append("session_id", session_id);
+    formData.append("item_code", item_code);
+    formData.append("quantity", quantity.toString());
+    formData.append("client_name", client_name || "");
+    formData.append("notes", notes || "");
+    formData.append("cp", "0_"); // REQUIRED by backend
+
+    console.log("FORMDATA OUT:", [...formData.entries()]); // test
+
+    const response = await axios.postForm(
+      process.env.NEXT_PUBLIC_BASEURL as string,
+      formData
+    );
+
+    console.log("API RESPONSE:", response.data);
+
+    return response.data;
+  } catch (error) {
+    console.error("CreateOrderItem Error:", error);
+    return null;
+  }
+}
+
+
+
+export async function GetAllActiveSessions()
+{
+   try{
+  const formData = new FormData();
+  formData.append("tp","get_sessions");
+  formData.append("cp", "0_");
+
+    const response = await axios.postForm(
+      process.env.NEXT_PUBLIC_BASEURL as string,
+      formData
+    );
+
+    return response.data;
+  }
+  catch (error) {
+    console.error("Login Error:", error);
+    return null;
+  }
+}
+
+
+export async function GetPerSessionOrders(
+  {
+    session_id
+  }:{
+   session_id:string; 
+  }
+){
+ try{
+  const formData = new FormData();
+  formData.append("tp","get_session_orders");
+  formData.append("cp", "0_");
+  formData.append("session_id", session_id);
 
     const response = await axios.postForm(
       process.env.NEXT_PUBLIC_BASEURL as string,

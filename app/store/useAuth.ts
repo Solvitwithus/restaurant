@@ -45,3 +45,66 @@ export const useSelectedData = create<SelectedItemsState>()(
     }
   )
 );
+
+
+export interface SessionType {
+  session_id: string;
+  table_id: string;
+  session_date: string;
+  start_time: string;
+  end_time: string | null;
+  guest_count: string;
+  status: string;
+  total_amount: string;
+  notes: string;
+  created_by: string;
+  session_type: string;
+  table_number: string;
+  table_name: string;
+  capacity: string;
+  duration_formatted: string;
+  duration_minutes: number;
+}
+
+interface SessionUpdate {
+  Sessions: SessionType[];
+  SetSession: (data: SessionType[]) => void;
+  clearSession: () => void;
+}
+
+export const useSessionData = create<SessionUpdate>()(
+  persist(
+    (set) => ({
+      Sessions: [],
+      SetSession: (data: SessionType[]) => set({ Sessions: data }),
+      clearSession: () => set({ Sessions: [] }),
+    }),
+    {
+      name: "session_data",
+    }
+  )
+);
+
+
+export interface OrderType {
+  id: string;
+  item_code: string;
+  item_description: string;
+  quantity: string;
+  unit_price: string;
+  status: string;
+  order_time: string;
+  line_total: number;
+}
+
+interface OrderState {
+  orders: OrderType[];
+  setOrders: (data: OrderType[]) => void;
+  clearOrders: () => void;
+}
+
+export const useOrders = create<OrderState>((set) => ({
+  orders: [],
+  setOrders: (data) => set({ orders: data }),
+  clearOrders: () => set({ orders: [] })
+}));

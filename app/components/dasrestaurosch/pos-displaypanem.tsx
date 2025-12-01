@@ -1,13 +1,15 @@
 "use client";
 import React, { useEffect, useState, useMemo } from 'react';
 import { Pause, PlayIcon, Search, SidebarCloseIcon, X,LockIcon ,Trash2} from 'lucide-react';
-import { SessionCreation, useRestrauntTables } from '@/app/hooks/access';
+import { CreateOrderItem, SessionCreation, RestrauntTables } from '@/app/hooks/access';
 import { useLoginSession, useSelectedData } from '@/app/store/useAuth';
 import { getMenu } from '@/app/hooks/access';
 import { toast } from 'sonner';
 import Image from 'next/image';
 import Globe from '@/public/food.jpeg';
 import axios from 'axios';
+import Link from 'next/link';
+
 
 export interface TableInfo {
   table_id: string;
@@ -88,8 +90,8 @@ const [heldOrders, setHeldOrders] = useState<RestureItemsTypes[]>([]);
   useEffect(() => {
     const fetchTables = async () => {
       try {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const res = await useRestrauntTables();
+        
+        const res = await RestrauntTables();
         if (res.status === "SUCCESS") {
           setTables(res.tables || []);
         }
@@ -150,31 +152,76 @@ const [heldOrders, setHeldOrders] = useState<RestureItemsTypes[]>([]);
 
   const total = selectedItems.reduce((sum, i) => sum + i.price, 0).toFixed(2);
 
-  const handleProcessOrder = async () => {
-    if (!selectedTable || numGuests <= 0 || selectedItems.length === 0) {
-      toast.error("Please select table, guests, and add items!");
+ const handleProcessOrder = async () => {
+  if (!selectedTable || numGuests <= 0 || selectedItems.length === 0) {
+    toast.error("Please select table, guests, and add items!");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    // 1️⃣ Create session
+    const data = await SessionCreation(
+      selectedTable,
+      numGuests,
+      sessionType || undefined,
+      remarks || undefined
+    );
+
+    if (!(data.status === "SUCCESS" || data.status_code === 200)) {
+      toast.error("Failed to process order");
       return;
     }
 
-    try {
-      setLoading(true);
-   
-      const data = await SessionCreation(selectedTable, numGuests, sessionType || undefined, remarks || undefined);
+    const sessionID = data.session_id;
+ 
+    toast.success(`Session with id: ${sessionID} created`);
 
-      if (data.status === "SUCCESS" || data.status_code === 200) {
-        toast.success("Session Created!");
-        setProcessOrderModalOpen(false);
-        
+    setProcessOrderModalOpen(false);
+
+    
+    const groupedItems = selectedItems.reduce((acc: any, item) => {
+      if (!acc[item.stock_id]) {
+        acc[item.stock_id] = { ...item, quantity: 1 };
       } else {
-        toast.error("Failed to process order");
+        acc[item.stock_id].quantity += 1;
       }
-    } catch (error) {
-      toast.error("Error processing order");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return acc;
+    }, {});
+
+    const finalItems = Object.values(groupedItems);
+
+
+    console.log("huy",finalItems);
+    
+    // 3️⃣ Send each item to the "create order" endpoint
+    await Promise.all(
+      finalItems.map((item: any) =>
+        CreateOrderItem({
+          session_id: sessionID,
+          item_code: item?.stock_id,
+          quantity: item?.quantity,
+          client_name: "clientName",
+          notes: item.notes || undefined,
+         
+        })
+      )
+    );
+
+    toast.success("Items added successfully");
+
+
+    
+  } catch (error) {
+    toast.error("Error processing order");
+    console.error(error);
+  } finally {
+    setLoading(false);
+    clearSelectedItems()
+  }
+};
+
 
 const handleHold = async () => {
   if (!orderName.trim()) {
@@ -235,11 +282,16 @@ const handleHold = async () => {
           <div className="flex justify-between items-center mb-4">
             <button
               onClick={clearSelectedItems}
-              className="text-sm font-bold text-green-600 hover:underline"
+              className="text-sm cursor-pointer font-bold text-green-600 hover:underline"
             >
               Take New Order
             </button>
-            <span className="text-sm font-bold text-red-600">Input code</span>
+<div className='flex gap-2 items-center'>
+            <span className="text-sm font-bold text-red-600/80">Input code</span>
+            <Link href="/track-orders" className="text-[#c9184a] font-medium">
+          Track Orders
+        </Link>
+        </div>
           </div>
 
           {/* Search Input */}

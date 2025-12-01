@@ -63,9 +63,10 @@ const Posregisteritemsection = () => {
         <Link href="/stock-list" className="text-[#4B2E26] font-medium">
           Stock List
         </Link>
+        
       </div>
 
-      <div className="flex gap-6 max-h-[82vh]">
+      <div className="flex gap-6 max-h-[82vh] min-h-[82vh]">
         {/* Categories */}
         <div className="w-[25%] border rounded-lg p-3 overflow-y-auto max-h-[82vh]">
           {loading ? (
