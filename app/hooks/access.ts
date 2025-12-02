@@ -28,7 +28,7 @@ export async function Login(
 
     return response.data;
   } catch (error) {
-    console.error("Login Error:", error);
+    console.error("Error:", error);
     return null;
   }
 }
@@ -48,7 +48,7 @@ export async function RestrauntTables(){
     return response.data;
   }
   catch (error) {
-    console.error("Login Error:", error);
+    console.error("Error:", error);
     return null;
   }
 }
@@ -114,7 +114,7 @@ export async function getMenu(){
     return response.data;
   }
   catch (error) {
-    console.error("Login Error:", error);
+    console.error("Error:", error);
     return null;
   }
 }
@@ -178,7 +178,7 @@ export async function GetAllActiveSessions()
     return response.data;
   }
   catch (error) {
-    console.error("Login Error:", error);
+    console.error("Error:", error);
     return null;
   }
 }
@@ -205,7 +205,46 @@ export async function GetPerSessionOrders(
     return response.data;
   }
   catch (error) {
-    console.error("Login Error:", error);
+    console.error("Error:", error);
+    return null;
+  }
+}
+
+interface UpdateStatusResponse {
+  status: "SUCCESS" | "ERROR";
+  message?: string;
+  // add more if your backend returns them
+}
+
+export async function UpdateItemstatus({
+  order_id,
+  status,
+}: {
+  order_id: string;
+  status: "preparing" | "ready" | "served"; // optional: restrict allowed values
+}): Promise<UpdateStatusResponse | null> {
+  const formData = new FormData();
+
+  // These seem to be required by your backend
+  formData.append("tp", "update_order_status"); // Better name than "get_session_orders"!
+  formData.append("cp", "0_");
+  formData.append("order_id", order_id);
+  formData.append("status", status);
+
+  try {
+    const response = await axios.postForm(
+      process.env.NEXT_PUBLIC_BASEURL!, // non-null assertion if you're sure it's set
+      formData,
+      // axios automatically sets Content-Type: multipart/form-data
+    );
+
+    return response.data as UpdateStatusResponse;
+  } catch (error: any) {
+    console.error("Failed to update order status:", error?.message || error);
+
+    // Optional: show toast in hook? Better to do it in component
+    // toast.error("Failed to update status");
+
     return null;
   }
 }

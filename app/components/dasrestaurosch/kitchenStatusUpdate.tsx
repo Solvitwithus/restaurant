@@ -1,52 +1,58 @@
 "use client";
 
-import { GetAllActiveSessions, GetPerSessionOrders } from "@/app/hooks/access";
+import { GetAllActiveSessions, GetPerSessionOrders, UpdateItemstatus } from "@/app/hooks/access";
 import React, { useEffect, useState, useCallback } from "react";
 import { SessionType, OrderType } from "@/app/store/useAuth";
 import { toast } from "sonner";
+import { TypingAnimation } from "@/components/ui/typing-animation";
 
-function KitchenStatus() {
+export default function KitchenStatus() {
+  // Sessions
   const [sessions, setSessions] = useState<SessionType[]>([]);
   const [filteredSessions, setFilteredSessions] = useState<SessionType[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [sortBy, setSortBy] = useState<"asc" | "desc">("desc");
+
+  // Orders
   const [orders, setOrders] = useState<OrderType[]>([]);
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [loadingOrders, setLoadingOrders] = useState(false);
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>("");
-  const [sortBy, setSortBy] = useState<"asc" | "desc">("desc"); // default newest first
+  // Status update per order
+  const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
+  const [newStatus, setNewStatus] = useState<"preparing" | "ready" | "served">("preparing");
+  const [updating, setUpdating] = useState(false);
 
-  // Fetch all active sessions + auto-refresh every 60 seconds
+  // Fetch active sessions every 60s
   useEffect(() => {
     const fetchSessions = async () => {
       try {
         const res = await GetAllActiveSessions();
         if (res?.status === "SUCCESS") {
           setSessions(res.sessions || []);
-        } else {
-          toast.error("Failed to fetch sessions.");
         }
       } catch (err) {
-        console.error(err);
-        toast.error("Error fetching sessions.");
+        toast.error("Failed to load sessions");
       }
     };
 
     fetchSessions();
-    const interval = setInterval(fetchSessions, 60 * 1000);
+    const interval = setInterval(fetchSessions, 60_000);
     return () => clearInterval(interval);
   }, []);
 
-  // Filter, search, and sort sessions
+  // Filter & sort sessions
   useEffect(() => {
     let filtered = [...sessions];
 
     if (searchTerm) {
+      const term = searchTerm.toLowerCase();
       filtered = filtered.filter(
         (s) =>
-          s.table_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          s.table_number.toLowerCase().includes(searchTerm.toLowerCase())
+          s.table_name.toLowerCase().includes(term) ||
+          s.table_number.toLowerCase().includes(term)
       );
     }
 
@@ -66,85 +72,106 @@ function KitchenStatus() {
     setFilteredSessions(filtered);
   }, [sessions, searchTerm, startDate, endDate, sortBy]);
 
-  // Fetch orders when a session is selected
-  const handleSessionClick = useCallback(async (sessionId: string) => {
-    if (selectedSessionId === sessionId) {
-      // If already selected, maybe deselect? Or just reload
-      // setSelectedSessionId(null);
-      // setOrders([]);
-      // return;
-    }
+  // Load orders for selected session
+  const handleSessionClick = useCallback(
+    async (sessionId: string) => {
+      if (selectedSessionId === sessionId) return;
 
-    setSelectedSessionId(sessionId);
+      setSelectedSessionId(sessionId);
+      setEditingOrderId(null);
       setLoadingOrders(true);
-      setOrders([]); // clear previous
+      setOrders([]);
 
       try {
         const res = await GetPerSessionOrders({ session_id: sessionId });
         if (res?.status === "SUCCESS") {
           setOrders(res.orders || []);
-          toast.success(`Orders loaded for Table ${sessionId}`);
         } else {
-          toast.error("No orders found or failed to load.");
-          setOrders([]);
+          toast.info("No orders yet");
         }
       } catch (err) {
-        console.error(err);
-        toast.error("Error loading orders.");
-        setOrders([]);
+        toast.error("Failed to load orders");
       } finally {
         setLoadingOrders(false);
       }
-  }, [selectedSessionId]);
+    },
+    [selectedSessionId]
+  );
 
-  // Optional: Auto-refresh orders for the currently selected session
+  // Auto-refresh orders every 30s
   useEffect(() => {
     if (!selectedSessionId) return;
 
-    const refreshOrders = async () => {
+    const refresh = async () => {
       try {
         const res = await GetPerSessionOrders({ session_id: selectedSessionId });
         if (res?.status === "SUCCESS") {
           setOrders(res.orders || []);
         }
-      } catch (err) {
-        // silent fail during auto-refresh
-      }
+      } catch {}
     };
 
-    const interval = setInterval(refreshOrders, 30 * 1000); // every 30s
-    return () => clearInterval(interval);
+    const id = setInterval(refresh, 30_000);
+    return () => clearInterval(id);
   }, [selectedSessionId]);
 
+  // Update order status
+  const handleStatusChange = async (orderId: string) => {
+    if (!newStatus) return;
+
+    setUpdating(true);
+    try {
+      const response = await UpdateItemstatus({
+        status: newStatus,
+        order_id: orderId,
+      });
+
+      if (response?.status === "SUCCESS") {
+        toast.success("Status updated!");
+        setOrders((prev) =>
+          prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
+        );
+        setEditingOrderId(null);
+        setNewStatus("preparing");
+      } else {
+        toast.error("Update failed");
+      }
+    } catch (err) {
+      toast.error("Network error");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col lg:flex-row gap-8 p-6 max-w-7xl mx-auto">
-      {/* Left Panel - Sessions */}
+    <div className="flex flex-col lg:flex-row gap-8 p-4 max-w-screen-1/2 mx-auto">
+      {/* Left: Sessions */}
       <div className="w-full lg:w-1/2">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Active Sessions</h2>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-3 mb-6">
+        <div className="flex flex-wrap gap-3 mb-6 p-4 bg-white rounded-xl shadow">
           <input
             type="text"
-            placeholder="Search table name/number..."
-            className="border border-gray-300 rounded-lg px-4 py-2 flex-1 min-w-[200px]"
+            placeholder="Search table..."
+            className="flex-1 min-w-[200px] px-4 py-2 border rounded-lg"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <input
             type="date"
-            className="border border-gray-300 rounded-lg px-4 py-2"
+            className="px-4 py-2 border rounded-lg"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
           />
           <input
             type="date"
-            className="border border-gray-300 rounded-lg px-4 py-2"
+            className="px-4 py-2 border rounded-lg"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
           />
           <select
-            className="border border-gray-300 rounded-lg px-4 py-2"
+            className="px-4 py-2 border rounded-lg"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as "asc" | "desc")}
           >
@@ -155,87 +182,144 @@ function KitchenStatus() {
 
         {/* Session Cards */}
         {filteredSessions.length === 0 ? (
-          <p className="text-gray-500 text-center py-10">No active sessions found.</p>
+          <p className="text-center text-gray-500 py-12">No active sessions</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
             {filteredSessions.map((s) => (
               <div
                 key={s.session_id}
                 onClick={() => handleSessionClick(s.session_id)}
-                className={`p-5 rounded-xl border-2 cursor-pointer transition-all transform hover:scale-105 ${
+                className={`p-6 rounded-xl border-2 cursor-pointer transition-all hover:scale-105 shadow-md ${
                   selectedSessionId === s.session_id
-                    ? "border-blue-500 bg-blue-50 shadow-lg"
-                    : "border-gray-200 bg-white hover:border-gray-400"
+                    ? "border-blue-500 bg-blue-50 shadow-xl"
+                    : "border-gray-300 bg-white"
                 }`}
               >
                 <h3 className="font-bold text-lg">
                   {s.table_name} ({s.table_number})
                 </h3>
-                <p className="text-sm text-gray-600 mt-2">
-                  Guests: <span className="font-medium">{s.guest_count}</span>
-                </p>
-                <p className="text-sm text-gray-600">
-                  Status: <span className={`font-medium ${s.status === 'active' ? 'text-green-600' : 'text-orange-600'}`}>{s.status}</span>
+                <p className="text-sm text-gray-600">Guests: {s.guest_count}</p>
+                <p className="text-sm">
+                  Status:{" "}
+                  <span className={s.status === "active" ? "text-green-600" : "text-orange-600"}>
+                    {s.status}
+                  </span>
                 </p>
                 <p className="text-xs text-gray-500 mt-2">
-                  Started: {new Date(s.start_time).toLocaleTimeString()}
+                  {new Date(s.start_time).toLocaleString()}
                 </p>
-                <p className="text-xs text-gray-400 mt-1">ID: {s.session_id}</p>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Right Panel - Orders */}
-      <div className="w-full lg:w-1/2">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">
-          Orders {selectedSessionId && `(Table ${filteredSessions.find(s => s.session_id === selectedSessionId)?.table_number || ''})`}
+      {/* Right: Orders */}
+      <div className="w-full fixed z-30 right-2 lg:w-[45%] ">
+        <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+          
+       <TypingAnimation
+  words={["Selected Order"]}
+  className="text-[#c9184a] text-2xl z-10 font-semibold"
+  blinkCursor
+  startOnView={false} 
+/>
+          {selectedSessionId && (
+            <span className="text-lg text-gray-600">
+              (Table {filteredSessions.find((s) => s.session_id === selectedSessionId)?.table_number})
+            </span>
+          )}
         </h2>
 
         {loadingOrders ? (
-          <p className="text-center py-10 text-gray-500">Loading orders...</p>
+          <p className="text-center py-20 text-gray-500">Loading orders...</p>
         ) : orders.length === 0 ? (
-          <div className="text-center py-16 bg-gray-50 rounded-xl">
-            <p className="text-gray-500 text-lg">
-              {selectedSessionId
-                ? "No orders yet for this table."
-                : "Select a session to view orders"}
+          <div className="text-center py-20 bg-gray-50 rounded-2xl">
+            <p className="text-lg text-gray-500">
+              {selectedSessionId ? "No orders yet" : "Select a table to view orders"}
             </p>
           </div>
         ) : (
-          <div className="space-y-4 max-h-screen overflow-y-auto pr-2">
-            {orders.map((o) => (
+          <div className="space-y-5 max-h-[80vh] overflow-y-auto pr-2">
+            {orders.map((order) => (
               <div
-                key={o.id}
-                className={`p-5 rounded-xl border-l-8 shadow-md transition-colors ${
-                  o.status === "pending"
+                key={order.id}
+                className={`p-6 rounded-xl border-l-8 shadow-lg transition-all cursor-pointer hover:shadow-xl ${
+                  order.status === "pending"
                     ? "bg-yellow-50 border-yellow-400"
-                    : o.status === "preparing"
+                    : order.status === "preparing"
                     ? "bg-orange-50 border-orange-400"
-                    : o.status === "ready"
+                    : order.status === "ready"
                     ? "bg-green-50 border-green-500"
                     : "bg-gray-50 border-gray-300"
                 }`}
+                onClick={() => setEditingOrderId(editingOrderId === order.id ? null : order.id)}
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <h4 className="font-bold text-lg">{o.item_description}</h4>
-                    <p className="text-sm text-gray-600">
-                      Qty: <strong>{o.quantity}</strong> × KES {o.unit_price.toLocaleString()}
+                    <h4 className="font-bold text-xl">{order.item_description}</h4>
+                    <p className="text-gray-600 mt-1">
+                      Qty: <strong>{order.quantity}</strong> × KES {order.unit_price.toLocaleString()}
                     </p>
-                    <p className="text-sm font-medium uppercase mt-2 text-gray-700">
-                      Status: {o.status}
-                    </p>
+                    <div className="mt-3">
+                      <span className="text-sm font-medium uppercase text-gray-700">Status:</span>{" "}
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          order.status === "pending"
+                            ? "bg-yellow-200 text-yellow-800"
+                            : order.status === "preparing"
+                            ? "bg-orange-200 text-orange-800"
+                            : order.status === "ready"
+                            ? "bg-green-200 text-green-800"
+                            : "bg-gray-200"
+                        }`}
+                      >
+                        {order.status}
+                      </span>
+                    </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-xl font-bold text-green-700">
-                      KES {o.line_total.toLocaleString()}
+                    <p className="text-2xl font-bold text-green-700">
+                      KES {order.line_total.toLocaleString()}
                     </p>
                   </div>
                 </div>
-                {o.notes && (
-                  <p className="text-sm text-gray-600 mt-3 italic">Note: {o.notes}</p>
+
+                {order.notes && (
+                  <p className="mt-4 text-sm italic text-gray-600">Note: {order.notes}</p>
+                )}
+
+                {/* Status Update Form */}
+                {editingOrderId === order.id && (
+                  <div
+                    className="mt-6 pt-6 border-t flex flex-col sm:flex-row gap-4"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <select
+                      value={newStatus}
+                      onChange={(e) => setNewStatus(e.target.value as any)}
+                      className="px-5 py-3 border rounded-lg focus:ring-2 focus:ring-[#D4A373] focus:outline-none"
+                    >
+                      <option value="preparing">Preparing</option>
+                      <option value="ready">Ready</option>
+                    
+                    </select>
+
+                    <button
+                      onClick={() => handleStatusChange(order.id)}
+                      disabled={updating}
+                      className="px-8 py-3 bg-[#D4A373] text-black/80 font-semibold rounded-lg hover:bg-[#c4955f] disabled:opacity-60 transition"
+                    >
+                      {updating ? "Updating..." : "Update Status"}
+                    </button>
+
+                    <button
+                      onClick={() => setEditingOrderId(null)}
+                      className="px-6 py-3 border rounded-lg hover:bg-gray-100 transition"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 )}
               </div>
             ))}
@@ -245,5 +329,3 @@ function KitchenStatus() {
     </div>
   );
 }
-
-export default KitchenStatus;
