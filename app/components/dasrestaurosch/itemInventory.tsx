@@ -1,4 +1,70 @@
 "use client";
+
+
+/**
+ * =============================================================================
+ * Item Inventory Overview (Stock List Page)
+ * =============================================================================
+ *
+ * @file components/dasrestaurosch/ItemInventory.tsx (or similar)
+ * @author John Kamiru Mwangi
+ * @created 2025-12-03
+ * @lastUpdated 2025-12-03
+ *
+ * @description
+ *   Full-screen inventory/stock list view used in the POS module under
+ *   "Stock List" navigation item. Displays every menu item available in the
+ *   system with real-time search, sort, and manual refresh capabilities.
+ *
+ *   This component is primarily read-only and serves cashiers, managers,
+ *   and kitchen staff who need quick reference to item names, prices,
+ *   categories, units, and stock codes.
+ *
+ * @features
+ *   • Live search by item description (case-insensitive)
+ *   • Sort by name (alphabetical) or price (low → high)
+ *   • Manual refresh button with loading skeletons
+ *   • Responsive table layout (mobile → desktop)
+ *   • Loading state with animated pulse placeholders
+ *   • Empty state handling
+ *   • Toast notifications on fetch errors
+ *
+ * @dataSource
+ *   getMenu() → /app/hooks/access.ts
+ *   Fetches the complete menu via tp=get_menu from the legacy backend.
+ *
+ * @keyHooks & Dependencies
+ *   - React useState     → local UI state (search, sort, loading)
+ *   - React useEffect    → initial data fetch on mount
+ *   - React useMemo      → performant filtering + sorting
+ *   - sonner toast       → user feedback
+ *   - lucide-react icons → modern, lightweight UI icons
+ *
+ * @stylingNotes
+ *   • Brand-consistent colors:
+ *        – Primary accent:  #099c7f
+ *        – Text / headings: #4B2E26
+ *        – Backgrounds:     #F7F5EE / white
+ *   • Hover states and subtle transitions for better UX
+ *   • Mobile-first table with horizontal scroll on small screens
+ *
+ * @futureImprovements / TODOs
+ *   • Add pagination or virtualized scrolling for 500+ items
+ *   • Export to CSV / PDF button
+ *   • Show item image thumbnails (when available)
+ *   • Low-stock highlighting (if quantity field is added to backend)
+ *   • Column visibility toggle
+ *   • Click row → quick add to cart (for fast re-ordering)
+ *   • Debounced search input
+ *   • Cache menu with TanStack Query for offline resilience
+ *
+ * @notes
+ *   - Prices are displayed in KSH (Kenyan Shillings)
+ *   - This page is intentionally lightweight – no heavy dependencies
+ *   - Menu data is shared with the POS cart search – keep MenuItemsTypes in sync
+ *
+ * =============================================================================
+ */
 import React, { useEffect, useState, useMemo } from "react";
 import { MenuItemsTypes } from "./pos-displaypanem";
 import { toast } from "sonner";

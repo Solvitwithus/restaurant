@@ -1,9 +1,38 @@
-
-
-
-
-
 "use client";
+
+
+/**
+ * @author John Kamiru Mwangi
+ *
+ * This component handles the Kitchen Status View used by chefs and staff to track
+ * all active dining sessions and the status of individual orders within each session.
+ *
+ * KEY FEATURES:
+ * 1. Fetches all active sessions and auto-refreshes them every 60 seconds.
+ * 2. Supports searching, sorting, and date-range filtering for sessions.
+ * 3. Displays a list of orders for the selected session and auto-refreshes
+ *    them every 30 seconds.
+ * 4. Allows inline status updates for individual orders (e.g., preparing → ready → served).
+ * 5. Uses visual color-coded cues for session cards and order statuses.
+ * 6. Provides responsive layout behavior: sessions on the left, selected
+ *    order panel on the right (behaves as sticky on large screens).
+ *
+ * HOW TO EXTEND:
+ * - To add new order statuses, update both the status badge styles
+ *   and the card background/border logic.
+ * - To modify auto-refresh intervals, adjust the setInterval durations.
+ * - API functions used: GetAllActiveSessions, GetPerSessionOrders,
+ *   UpdateItemstatus — ensure they remain consistent with backend changes.
+ *
+ * NOTE TO FUTURE DEVELOPERS:
+ * - Be careful when editing layout classes; the right panel uses
+ *   `lg:sticky` intentionally to avoid layout overlap on smaller screens.
+ * - The component relies heavily on controlled state and effects.
+ *   Changing session or order data shapes requires updating types in:
+ *   `/app/store/useAuth`.
+ *
+ * @date Updated: Dec 3 2025
+ */
 
 import { GetAllActiveSessions, GetPerSessionOrders, UpdateItemstatus } from "@/app/hooks/access";
 import React, { useEffect, useState, useCallback } from "react";
@@ -27,7 +56,7 @@ export default function MonitorOrders() {
 
   // Status update per order
   const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
-  const [newStatus, setNewStatus] = useState<"cancelled" | "served">("served");
+  const [newStatus, setNewStatus] = useState<"preparing" | "ready" | "served">("preparing");
   const [updating, setUpdating] = useState(false);
 
   // Fetch active sessions every 60s
@@ -137,7 +166,7 @@ export default function MonitorOrders() {
           prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
         );
         setEditingOrderId(null);
-        setNewStatus("served");
+        setNewStatus("preparing");
       } else {
         toast.error("Update failed");
       }
@@ -149,7 +178,7 @@ export default function MonitorOrders() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 p-4 max-w-screen-1/2 mx-auto">
+    <div className="flex flex-col lg:flex-row gap-8 p-4 min-w-screen-1/2 mx-auto">
       {/* Left: Sessions */}
       <div className="w-full lg:w-1/2">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Active Sessions</h2>
@@ -213,6 +242,9 @@ export default function MonitorOrders() {
                 <p className="text-xs text-gray-500 mt-2">
                   {new Date(s.start_time).toLocaleString()}
                 </p>
+                <p className="text-xs text-right text-gray-500 mt-2">
+                  Session ID: {s.session_id}
+                </p>
               </div>
             ))}
           </div>
@@ -220,7 +252,8 @@ export default function MonitorOrders() {
       </div>
 
       {/* Right: Orders */}
-      <div className="w-full fixed z-30 right-2 lg:w-[45%] ">
+      <div className="w-full lg:w-[45%] lg:sticky lg:top-4 ">
+
         <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
           
        <TypingAnimation
@@ -247,17 +280,26 @@ export default function MonitorOrders() {
         ) : (
           <div className="space-y-5 max-h-[80vh] overflow-y-auto pr-2">
             {orders.map((order) => (
-              <div
-                key={order.id}
-                className={`p-6 rounded-xl border-l-8 shadow-lg transition-all cursor-pointer hover:shadow-xl ${
-                  order.status === "served"
-                    ? "bg-yellow-50 border-yellow-400"
-                    : order.status === "cancelled"
-                    ? "bg-orange-50 border-red-400"
-                    : "bg-gray-50 border-gray-300"
-                }`}
-                onClick={() => setEditingOrderId(editingOrderId === order.id ? null : order.id)}
-              >
+          <div
+  key={order.id}
+  className={`p-6 rounded-xl border-l-8 shadow-lg transition-all cursor-pointer hover:shadow-xl ${
+    order.status === "pending"
+      ? "bg-yellow-50 border-yellow-400"
+      : order.status === "preparing"
+      ? "bg-blue-50 border-blue-400"
+      : order.status === "ready"
+      ? "bg-green-50 border-green-500"
+      : order.status === "served"
+      ? "bg-purple-50 border-purple-400"
+      : order.status === "cancelled"
+      ? "bg-red-50 border-red-400"
+      : "bg-gray-50 border-gray-300"
+  }`}
+  onClick={() =>
+    setEditingOrderId(editingOrderId === order.id ? null : order.id)
+  }
+>
+
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <h4 className="font-bold text-xl">{order.item_description}</h4>
@@ -266,15 +308,23 @@ export default function MonitorOrders() {
                     </p>
                     <div className="mt-3">
                       <span className="text-sm font-medium uppercase text-gray-700">Status:</span>{" "}
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          order.status === "served"
-                            ? "bg-yellow-200 text-green-800"
-                            : order.status === "cancelled"
-                            ? "bg-orange-200 text-orange-800"
-                            : "bg-gray-200"
-                        }`}
-                      >
+                     <span
+  className={`px-3 py-1 rounded-full text-xs font-bold ${
+    order.status === "pending"
+      ? "bg-yellow-200 text-yellow-900"
+      : order.status === "preparing"
+      ? "bg-blue-200 text-blue-900"
+      : order.status === "ready"
+      ? "bg-green-200 text-green-900"
+      : order.status === "served"
+      ? "bg-purple-200 text-purple-900"
+      : order.status === "cancelled"
+      ? "bg-red-200 text-red-900"
+      : "bg-gray-200 text-gray-700"
+  }`}
+>
+
+
                         {order.status}
                       </span>
                     </div>
@@ -301,8 +351,8 @@ export default function MonitorOrders() {
                       onChange={(e) => setNewStatus(e.target.value as any)}
                       className="px-5 py-3 border rounded-lg focus:ring-2 focus:ring-[#D4A373] focus:outline-none"
                     >
-                      <option value="served">Served</option>
-                      <option value="cancelled">Cancelled</option>
+                      <option value="preparing">Preparing</option>
+                      <option value="ready">Ready</option>
                     
                     </select>
 

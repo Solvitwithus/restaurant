@@ -1,9 +1,74 @@
 
 
 /**
+ * =============================================================================
+ * DigiSales POS – Backend API Access Layer
+ * =============================================================================
+ *
+ * @file app/hooks/access.ts (or lib/api/access.ts)
  * @author John Kamiru Mwangi
- * @
+ *@date Updated: Dec 3 2025
+ * @description
+ *   Central collection of all API calls used throughout the Next.js POS frontend.
+ *   All functions communicate with the legacy PHP backend via multipart/form-data
+ *   POST requests to a single endpoint defined in NEXT_PUBLIC_BASEURL.
+ *
+ *   The backend uses two hidden control parameters:
+ *     • tp = transaction/process type (determines which script runs)
+ *     • cp = control prefix (currently always "0_") you can also think of this as company prefix
+ *
+ *   This file acts as a clean abstraction layer – components and hooks should
+ *   import from here rather than calling axios directly.
+ *
+ * @environment
+ *   NEXT_PUBLIC_BASEURL → Full URL of the backend gateway (e.g. https://yourdomain.com/api/gateway.php)
+ *
+ * @securityNote
+ *   Authentication is session-based. After successful Login(), the backend sets
+ *   HTTP-only cookies that are automatically sent with subsequent requests.
+ *
+ * @exportedFunctions
+ *
+ *   Login()                    → Authenticate cashier/user
+ *   RestrauntTables()          → Get all tables with status/capacity
+ *   getMenu()                  → Fetch complete menu (for search & KDS)
+ *   SessionCreation()          → Start new dining session (required before ordering)
+ *   CreateOrderItem()          → Add line item to an active session
+ *   GetAllActiveSessions()     → List all currently open sessions
+ *   GetPerSessionOrders()      → Retrieve orders for a specific session
+ *   UpdateItemstatus()         → Kitchen: mark order as preparing → ready → served
+ *
+ * @responseFormat (general)
+ *   Most endpoints return:
+ *   {
+ *     status: "SUCCESS" | "ERROR" | number,
+ *     message?: string,
+ *     data?: any
+ *   }
+ *   Some older endpoints return raw arrays or status 200 without wrapper.
+ *
+ * @errorHandling
+ *   • Axios errors are caught and logged
+ *   • Functions return null or a fallback object on failure
+ *   • Consumer components should check return value and show toast/alert
+ *
+ * @futureImprovements / Roadmap
+ *   • Convert to typed fetch() + Zod validation for runtime safety
+ *   • Add request cancellation (AbortController)
+ *   • Implement retry logic with exponential backoff
+ *   • Add TanStack Query / React Query hooks wrappers
+ *   • Generate OpenAPI spec from these functions
+ *   • Add request/response interceptors (auth refresh, logging)
+ *   • Unit + integration tests with MSW
+ *
+ * @maintenanceTips
+ *   • Always keep "tp" and "cp" values in sync with backend expectations
+ *   • When backend adds new fields, update corresponding function here first
+ *   • Never expose raw axios instances in components – keep logic encapsulated
+ *
+ * =============================================================================
  */
+
 import axios from "axios";
 
 

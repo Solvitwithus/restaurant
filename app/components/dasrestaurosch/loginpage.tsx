@@ -1,4 +1,48 @@
 "use client";
+
+/**
+ * @author John Kamiru
+ *
+ * LoginCard Component
+ * -------------------
+ * This component is responsible for handling the login process for DigiSales.
+ * It provides:
+ *
+ * 1. User Authentication
+ *    - Accepts username and password.
+ *    - Validates empty fields before submitting.
+ *    - Sends credentials to the `Login()` API helper.
+ *    - Stores returned token and user object inside the global `useLoginSession` store.
+ *
+ * 2. Redirect Logic
+ *    - Automatically redirects authenticated users to `/sales-register`.
+ *    - Prevents showing the login page if a valid token already exists.
+ *
+ * 3. UI & Animation
+ *    - Uses the `ShineBorder` and `TypingAnimation` components for branding.
+ *    - Styled with Tailwind classes following the DigiSales color theme.
+ *
+ * 4. Error Handling
+ *    - Shows toast notifications for invalid credentials or unexpected errors.
+ *    - Displays loading state on the login button to prevent duplicate submissions.
+ *
+ * HOW TO EXTEND THIS FILE:
+ * ------------------------
+ * - To add "Remember Me", multi-role login, or OTP verification,
+ *   extend the `handleLogin` function and update the global auth store.
+ *
+ * - If API login logic changes, update the `Login()` function in:
+ *      /app/hooks/access.ts
+ *
+ * - Global state for the authenticated user is stored in:
+ *      /app/store/useAuth.ts
+ *
+ * - If routes change, update the redirect path inside the `useEffect()` and
+ *   the success handler within `handleLogin()`.
+ *
+ * Last Updated: 2025
+ */
+
 import { Login } from "@/app/hooks/access";
 import { ShineBorder } from "@/components/ui/shine-border";
 import { TypingAnimation } from "@/components/ui/typing-animation";

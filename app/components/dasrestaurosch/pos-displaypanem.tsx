@@ -1,4 +1,70 @@
 "use client";
+
+
+
+/**
+ * =============================================================================
+ * POS Display Panel (Right-hand Cart / Order Summary)
+ * =============================================================================
+ *
+ * @author John Kamiru Mwangi
+ * @description
+ *   Main right-side panel of the Point-of-Sale interface. Handles:
+ *     • Quick item search & addition (by name or stock code)
+ *     • Cart management (add, remove, quantity aggregation)
+ *     • Order total calculation
+ *     • "Place Order" – creates a restaurant session + sends items to backend
+ *     • "Hold Order" – persists current cart locally (via /api/orders) for later recall
+ *     • "Held Orders" – view, restore, or permanently delete saved carts
+ *
+ * @features
+ *   - Real-time search with debounced dropdown (max 8 results)
+ *   - Automatic quantity grouping in cart view
+ *   - Session creation flow (table selection, guest count, session type, remarks, priority, server)
+ *   - Hold-order naming & persistence (POST /api/orders)
+ *   - Held-order listing with restore (PATCH /api/orders) and delete (DELETE /api/orders)
+ *   - Responsive modals with backdrop blur & animations
+ *   - Toast notifications via Sonner
+ *
+ * @keyHooks
+ *   - useSelectedData()       → global cart store (selectedItems, setSelectedItems, clearSelectedItems)
+ *   - useLoginSession()       → provides list of available servers/users
+ *   - Custom hooks:
+ *        • RestrauntTables()   → fetches available tables
+ *        • getMenu()           → fetches full menu for search
+ *        • SessionCreation()   → creates a new dining session
+ *        • CreateOrderItem()   → adds individual items to a session
+ *
+ * @apiEndpointsUsed
+ *   POST   /api/orders                → Hold current cart
+ *   GET    /api/orders                → Retrieve all held orders
+ *   PATCH  /api/orders?orderName=…    → Mark held order as "restored" (optional cleanup)
+ *   DELETE /api/orders?orderName=…    → Permanently delete a held order
+ *
+ * @importantState
+ *   - selectedItems        → current cart (array of MenuItemsTypes, duplicates allowed)
+ *   - itemCounts           → memoized object {stock_id: {item, count}}
+ *   - searchResults        → memoized filtered menu items for dropdown
+ *   - heldOrders           → array of saved carts fetched from backend
+ *
+ * @futureImprovements / TODOs
+ *   • Add quantity +/- buttons directly in cart rows
+ *   • Implement discount / tax calculation section
+ *   • Support item notes / modifiers per line item
+ *   • Keyboard shortcuts (e.g., F2 → focus search, F8 → place order)
+ *   • Drag-and-drop reordering of items
+ *   • Print kitchen docket automatically after placing order
+ *   • Offline-first queue for unreliable networks
+ *   • Accessibility (ARIA labels, keyboard navigation)
+ *
+ * @notes
+ *   - All monetary values are displayed in KSH (Kenyan Shillings)
+ *   - Image placeholder currently uses a generic food.jpeg – replace with actual item images when available
+ *   - Loading states are managed per-action to prevent double submission
+ *
+ * @date Dec3 2025
+ * =============================================================================
+ */
 import React, { useEffect, useState, useMemo } from 'react';
 import { Pause, PlayIcon, Search, SidebarCloseIcon, X,LockIcon ,Trash2} from 'lucide-react';
 import { CreateOrderItem, SessionCreation, RestrauntTables } from '@/app/hooks/access';
@@ -453,7 +519,7 @@ const handleHold = async () => {
                  shadow-sm cursor-pointer hover:bg-[#3a221d] active:scale-95 transition-all"
     >
       
-      Clear Order
+      Payments
     </button>
         </div>
       </div>
