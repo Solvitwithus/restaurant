@@ -105,7 +105,7 @@ setUsers([res?.user])
       <span className="bg-[#E9D7C1] rounded-br-full h-52 w-52 absolute top-0 left-0"></span>
       <span className="bg-[#D4A373] rounded-tl-full h-52 w-52 absolute bottom-0 right-0"></span>
 
-      <div className="relative w-[30%] bg-white rounded-xl shadow-lg p-6 flex flex-col items-center gap-4">
+      <div className="relative sm:w-[45%] lg:w-[30%] bg-white rounded-xl shadow-lg p-6 flex flex-col items-center gap-4">
         <ShineBorder
           borderWidth={2}
           duration={10}
