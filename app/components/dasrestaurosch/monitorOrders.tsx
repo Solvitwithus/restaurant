@@ -56,7 +56,7 @@ export default function MonitorOrders() {
 
   // Status update per order
   const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
-  const [newStatus, setNewStatus] = useState<"preparing" | "ready" | "served">("preparing");
+  const [newStatus, setNewStatus] = useState<"cancelled" | "served">("served");
   const [updating, setUpdating] = useState(false);
 
   // Fetch active sessions every 60s
