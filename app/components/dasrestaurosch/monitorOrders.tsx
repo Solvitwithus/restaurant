@@ -166,7 +166,7 @@ export default function MonitorOrders() {
           prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
         );
         setEditingOrderId(null);
-        setNewStatus("preparing");
+        setNewStatus("served");
       } else {
         toast.error("Update failed");
       }
