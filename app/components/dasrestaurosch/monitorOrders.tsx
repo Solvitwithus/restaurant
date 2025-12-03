@@ -351,8 +351,8 @@ export default function MonitorOrders() {
                       onChange={(e) => setNewStatus(e.target.value as any)}
                       className="px-5 py-3 border rounded-lg focus:ring-2 focus:ring-[#D4A373] focus:outline-none"
                     >
-                      <option value="preparing">Preparing</option>
-                      <option value="ready">Ready</option>
+                      <option value="served">Served</option>
+                      <option value="cancelled">Cancel</option>
                     
                     </select>
 
