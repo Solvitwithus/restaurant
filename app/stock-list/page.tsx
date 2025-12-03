@@ -6,7 +6,7 @@ import ItemInventory from '../components/dasrestaurosch/itemInventory';
 
 function Page() {
   return (
-  <div className="min-h-screen min-w-min bg-[#F7F5EE]">
+  <div className="max-h-screen min-w-min bg-[#F7F5EE]">
   <Menu />
 <ItemInventory/>
 </div>

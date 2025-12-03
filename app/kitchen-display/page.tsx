@@ -5,7 +5,7 @@ import KitchenDisplay from '../components/dasrestaurosch/kitchenStatusUpdate';
 
 function Page() {
   return (
-  <div className="min-h-screen min-w-min bg-[#F7F5EE]">
+  <div className="max-h-screen min-w-min bg-[#F7F5EE]">
   <Menu />
 <KitchenDisplay/>
 </div>
