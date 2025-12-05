@@ -373,7 +373,7 @@ try {
                   >
 
                     {
-                      order.status === "served" || order.status === "cancelled" ? (
+                      order.status === "ready" || order.status === "cancelled" ? (
       <p className="text-red-600 font-semibold text-sm">
         This order is <strong>{order.status}</strong> and cannot be updated.
       </p>
