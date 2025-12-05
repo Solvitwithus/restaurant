@@ -290,8 +290,8 @@ export async function UpdateItemstatus({
 }): Promise<UpdateStatusResponse | null> {
   const formData = new FormData();
 
-  // These seem to be required by your backend
-  formData.append("tp", "update_order_status"); // Better name than "get_session_orders"!
+  
+  formData.append("tp", "update_order_status"); 
   formData.append("cp", "0_");
   formData.append("order_id", order_id);
   formData.append("status", status);
@@ -309,6 +309,67 @@ export async function UpdateItemstatus({
 
     // Optional: show toast in hook? Better to do it in component
     // toast.error("Failed to update status");
+
+    return null;
+  }
+}
+
+
+export async function End_session(
+  {
+    session_id
+  }:{
+    session_id:string;
+  }
+){
+ const formData = new FormData();
+
+  
+  formData.append("tp", "close_session"); 
+  formData.append("cp", "0_");
+  formData.append("session_id", session_id);
+  
+
+  try {
+    const response = await axios.postForm(
+      process.env.NEXT_PUBLIC_BASEURL!, 
+      formData,
+      
+    );
+
+    return response.data as UpdateStatusResponse;
+  } catch (error: any) {
+    console.error("Failed to end session:", error?.message || error);
+
+ 
+
+    return null;
+  }
+}
+
+
+
+export async function GetStaff(){
+ const formData = new FormData();
+
+  
+  formData.append("tp", "get_staff"); 
+  formData.append("cp", "0_");
+  
+  
+
+  try {
+    const response = await axios.postForm(
+      process.env.NEXT_PUBLIC_BASEURL!, 
+      formData,
+      
+    );
+
+    return response.data as UpdateStatusResponse;
+  } catch (error: any) {
+    console.error("Failed to get staff:", error?.message || error);
+
+ 
 
     return null;
   }

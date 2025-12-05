@@ -67,14 +67,15 @@
  */
 import React, { useEffect, useState, useMemo } from 'react';
 import { Pause, PlayIcon, Search, SidebarCloseIcon, X,LockIcon ,Trash2} from 'lucide-react';
-import { CreateOrderItem, SessionCreation, RestrauntTables } from '@/app/hooks/access';
-import { useLoginSession, useSelectedData } from '@/app/store/useAuth';
+import { CreateOrderItem, SessionCreation, RestrauntTables, GetStaff } from '@/app/hooks/access';
+import {  useSelectedData } from '@/app/store/useAuth';
 import { getMenu } from '@/app/hooks/access';
 import { toast } from 'sonner';
 import Image from 'next/image';
 import Globe from '@/public/food.jpeg';
 import axios from 'axios';
 import Link from 'next/link';
+import { Staff } from './types';
 
 
 export interface TableInfo {
@@ -131,11 +132,12 @@ export interface ServerInfo {
 
 function Posdisplaypanem() {
   const { clearSelectedItems, selectedItems, setSelectedItems } = useSelectedData();
-  const { users }= useLoginSession();
+ 
 
   const [processOrderModalOpen, setProcessOrderModalOpen] = useState(false);
   const [tables, setTables] = useState<TableInfo[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItemsTypes[]>([]);
+  const [staffMembers, setstaffMembers] = useState<Staff[]>([])
   const [selectedServer, setSelectedServer] = useState('');
 const [priority, setPriority] = useState('');
   const [selectedTable, setSelectedTable] = useState('');
@@ -166,6 +168,21 @@ const [heldOrders, setHeldOrders] = useState<RestureItemsTypes[]>([]);
       }
     };
     fetchTables();
+
+
+    const fetchStaff = async()=>{
+         try {
+        
+        const res = await GetStaff();
+        if (res?.status === "SUCCESS") {
+          setstaffMembers(res?.staff);
+        }
+      } catch (e) {
+        console.error("Failed to fetch tables", e);
+      }
+
+    }
+    fetchStaff()
   }, []);
 
   // Fetch menu items for search
@@ -562,13 +579,13 @@ const handleHold = async () => {
 >
   <option value="" disabled>-- Select User --</option>
 
-  {users.length > 0 ? (
-    users.map((val, index) => (
+  {staffMembers.length > 0 ? (
+    staffMembers.map((val, index) => (
       <option 
         key={val.id ?? index}
         value={val.id}
       >
-        {val.name}
+        {val.real_name}
       </option>
     ))
   ) : (

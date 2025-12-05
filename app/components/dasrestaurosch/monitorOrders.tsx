@@ -34,7 +34,7 @@
  * @date Updated: Dec 3 2025
  */
 
-import { GetAllActiveSessions, GetPerSessionOrders, UpdateItemstatus } from "@/app/hooks/access";
+import { End_session, GetAllActiveSessions, GetPerSessionOrders, UpdateItemstatus } from "@/app/hooks/access";
 import React, { useEffect, useState, useCallback } from "react";
 import { SessionType, OrderType } from "@/app/store/useAuth";
 import { toast } from "sonner";
@@ -106,6 +106,8 @@ export default function MonitorOrders() {
     setFilteredSessions(filtered);
   }, [sessions, searchTerm, startDate, endDate, sortBy]);
 
+
+ 
   // Load orders for selected session
   const handleSessionClick = useCallback(
     async (sessionId: string) => {
@@ -117,6 +119,7 @@ export default function MonitorOrders() {
       setOrders([]);
 
       try {
+       
         const res = await GetPerSessionOrders({ session_id: sessionId });
         if (res?.status === "SUCCESS") {
           setOrders(res.orders || []);
@@ -176,6 +179,28 @@ export default function MonitorOrders() {
       setUpdating(false);
     }
   };
+
+
+  const handleEndSession = async ()=>{
+   
+try {
+      const response = await End_session({
+      session_id: selectedSessionId,
+      });
+
+      if (response?.status === "SUCCESS") {
+        toast.success("Session Ended!");
+       
+      } else {
+        toast.error("Session failed to end, please try again!");
+      }
+    } catch (err:unknown) {
+    toast.error(`Network error occured,${err}`);
+    }
+    finally{
+       setLoadingOrders(false)
+    }
+  }
 
   return (
     <div className="flex flex-col lg:flex-row gap-8 p-4 min-w-screen-1/2 mx-auto">
@@ -348,7 +373,7 @@ export default function MonitorOrders() {
                   >
 
                     {
-                      order.status === "ready" || order.status === "cancelled" ? (
+                      order.status === "served" || order.status === "cancelled" ? (
       <p className="text-red-600 font-semibold text-sm">
         This order is <strong>{order.status}</strong> and cannot be updated.
       </p>
@@ -392,6 +417,8 @@ export default function MonitorOrders() {
   className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-red-600 text-white font-semibold rounded-xl
              hover:bg-red-700 shadow-lg shadow-red-300/30 
              transition-all duration-300 active:scale-95"
+
+             onClick={handleEndSession}
 >
   <svg
     xmlns="http://www.w3.org/2000/svg"
