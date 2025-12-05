@@ -157,6 +157,8 @@ export default function KitchenStatus() {
         order_id: orderId,
       });
 
+     
+
       if (response?.status === "SUCCESS") {
         toast.success("Status updated!");
         setOrders((prev) =>
@@ -338,37 +340,46 @@ export default function KitchenStatus() {
                 )}
 
                 {/* Status Update Form */}
-                {editingOrderId === order.id && (
-                  <div
-                    className="mt-6 pt-6 border-t flex flex-col sm:flex-row gap-4"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <select
-                      value={newStatus}
-                      onChange={(e) => setNewStatus(e.target.value as any)}
-                      className="px-5 py-3 border rounded-lg focus:ring-2 focus:ring-[#D4A373] focus:outline-none"
-                    >
-                      <option value="preparing">Preparing</option>
-                      <option value="ready">Ready</option>
-                    
-                    </select>
+{editingOrderId === order.id && (
+  <div
+    className="mt-6 pt-6 border-t flex flex-col sm:flex-row gap-4"
+    onClick={(e) => e.stopPropagation()}
+  >
+    {/** Prevent updating if status is cancelled or served **/}
+    {order.status === "cancelled" || order.status === "served" ? (
+      <p className="text-red-600 font-semibold text-sm">
+        This order is <strong>{order.status}</strong> and cannot be updated.
+      </p>
+    ) : (
+      <>
+        <select
+          value={newStatus}
+          onChange={(e) => setNewStatus(e.target.value as any)}
+          className="px-5 py-3 border rounded-lg focus:ring-2 focus:ring-[#D4A373] focus:outline-none"
+        >
+          <option value="preparing">Preparing</option>
+          <option value="ready">Ready</option>
+        </select>
 
-                    <button
-                      onClick={() => handleStatusChange(order.id)}
-                      disabled={updating}
-                      className="px-8 py-3 bg-[#D4A373] text-black/80 font-semibold rounded-lg hover:bg-[#c4955f] disabled:opacity-60 transition"
-                    >
-                      {updating ? "Updating..." : "Update Status"}
-                    </button>
+        <button
+          onClick={() => handleStatusChange(order.id)}
+          disabled={updating}
+          className="px-8 py-3 bg-[#D4A373] text-black/80 font-semibold rounded-lg hover:bg-[#c4955f] disabled:opacity-60 transition"
+        >
+          {updating ? "Updating..." : "Update Status"}
+        </button>
 
-                    <button
-                      onClick={() => setEditingOrderId(null)}
-                      className="px-6 py-3 border rounded-lg hover:bg-gray-100 transition"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                )}
+        <button
+          onClick={() => setEditingOrderId(null)}
+          className="px-6 py-3 border rounded-lg hover:bg-gray-100 transition"
+        >
+          Cancel
+        </button>
+      </>
+    )}
+  </div>
+)}
+
               </div>
             ))}
           </div>

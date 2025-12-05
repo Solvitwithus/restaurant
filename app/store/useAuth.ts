@@ -95,6 +95,7 @@ export interface OrderType {
   status: string;
   order_time: string;
   line_total: number;
+  notes:string;
 }
 
 interface OrderState {

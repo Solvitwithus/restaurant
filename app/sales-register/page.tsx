@@ -6,7 +6,7 @@ import Posregisteritemsection from '../components/dasrestaurosch/posregisteritem
 
 function Page() {
   return (
-  <div className="max-h-screen min-w-min bg-[#F7F5EE]">
+  <div className="min-h-screen overflow-y-auto min-w-min bg-[#F7F5EE]">
   <Menu />
   <div className="flex my-4 gap-1 mx-2">
     <Posdisplaypanem />

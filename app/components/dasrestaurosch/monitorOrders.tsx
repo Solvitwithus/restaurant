@@ -346,7 +346,15 @@ export default function MonitorOrders() {
                     className="mt-6 pt-6 border-t flex flex-col sm:flex-row gap-4"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <select
+
+                    {
+                      order.status === "ready" || order.status === "cancelled" ? (
+      <p className="text-red-600 font-semibold text-sm">
+        This order is <strong>{order.status}</strong> and cannot be updated.
+      </p>
+    ) :(
+      <>
+      <select
                       value={newStatus}
                       onChange={(e) => setNewStatus(e.target.value as any)}
                       className="px-5 py-3 border rounded-lg focus:ring-2 focus:ring-[#D4A373] focus:outline-none"
@@ -370,10 +378,38 @@ export default function MonitorOrders() {
                     >
                       Cancel
                     </button>
+      </>
+    )
+                    }
+                    
                   </div>
                 )}
               </div>
             ))}
+
+            <button
+  type="button"
+  className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-red-600 text-white font-semibold rounded-xl
+             hover:bg-red-700 shadow-lg shadow-red-300/30 
+             transition-all duration-300 active:scale-95"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth="1.5"
+    stroke="currentColor"
+    className="w-5 h-5"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M6 18L18 6M6 6l12 12"
+    />
+  </svg>
+  End Session
+</button>
+
           </div>
         )}
       </div>

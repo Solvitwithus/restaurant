@@ -72,7 +72,7 @@ import Report from "@/public/report.svg"
 import HomeIcon from "@/public/homeIcon.svg";
 import Image from 'next/image';
 import Link from 'next/link';
-import Inventory from "@/public/store.svg"
+
 import { usePathname,useRouter } from 'next/navigation';
 import { useLoginSession } from '@/app/store/useAuth';
 interface LandingPage {
@@ -89,8 +89,8 @@ function Menu() {
   const router = useRouter()
   const displayPanel: LandingPage[] = [
     { name: "Sales Register", path: "/sales-register", icon: HomeIcon },
-    { name: "Stock List", path: "/stock-list", icon: Inventory },
-    { name: "Kitchen Display", path: "/kitchen-display", icon: Kitchen },
+    { name: "Menu List", path: "/stock-list", icon: Kitchen },
+   
     { name: "Reports", path: "/reports", icon: Report },
   ];
 
