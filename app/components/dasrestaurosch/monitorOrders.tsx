@@ -47,8 +47,16 @@ export default function MonitorOrders() {
   const [sessions, setSessions] = useState<SessionType[]>([]);
   const [filteredSessions, setFilteredSessions] = useState<SessionType[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(() => {
+  const today = new Date();
+  return today.toISOString().split("T")[0]; // "2025-12-12"
+});
+  // const [endDate, setEndDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(() => {
+  const today = new Date();
+  return today.toISOString().split("T")[0]; // "2025-12-12"
+});
+
   const [sortBy, setSortBy] = useState<"asc" | "desc">("desc");
 type OrderStatus =  "served" | "cancelled";
 

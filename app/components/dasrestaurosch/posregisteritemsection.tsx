@@ -185,7 +185,7 @@ const [query, setQuery] = useState<string>("")
 
 {/* No matches */}
 {query && findCategoryforItem.length === 0 && (
-  <p className="text-gray-500 mt-2">No items found</p>
+  <p className="text-gray-500 mt-2">Not found</p>
 )}
 
           {!selectedCategory ? (

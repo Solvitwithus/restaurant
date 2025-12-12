@@ -18,8 +18,8 @@ export const metadata: Metadata = {
   description: "Digi-Sales – Your modern sales management solution",
   manifest: "/manifest.json", // ← This tells Next.js to serve the manifest
   icons: {
-    icon: ["/icons/icon-192x192.png", "/icons/icon-512x512.png"],
-    apple: "/icons/icon-192x192.png",
+    icon: ["/icons/appicon-128x128.png", "/icons/appicon-256x256.png"],
+    apple: "/icons/appicon-128x128.png",
   },
   themeColor: "#000000",
   appleWebApp: {
