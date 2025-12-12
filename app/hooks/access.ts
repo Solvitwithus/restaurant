@@ -286,7 +286,7 @@ export async function UpdateItemstatus({
   status,
 }: {
   order_id: string;
-  status: "preparing" | "ready" | "served"; // optional: restrict allowed values
+  status: "preparing" | "ready" | "served" | "cancelled"; 
 }): Promise<UpdateStatusResponse | null> {
   const formData = new FormData();
 

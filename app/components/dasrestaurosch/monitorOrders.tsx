@@ -39,8 +39,10 @@ import React, { useEffect, useState, useCallback } from "react";
 import { SessionType, OrderType } from "@/app/store/useAuth";
 import { toast } from "sonner";
 import { TypingAnimation } from "@/components/ui/typing-animation";
-
+import {  PowerCircle } from "lucide-react";
+;
 export default function MonitorOrders() {
+
   // Sessions
   const [sessions, setSessions] = useState<SessionType[]>([]);
   const [filteredSessions, setFilteredSessions] = useState<SessionType[]>([]);
@@ -48,6 +50,7 @@ export default function MonitorOrders() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [sortBy, setSortBy] = useState<"asc" | "desc">("desc");
+type OrderStatus =  "served" | "cancelled";
 
   // Orders
   const [orders, setOrders] = useState<OrderType[]>([]);
@@ -59,9 +62,8 @@ export default function MonitorOrders() {
   const [newStatus, setNewStatus] = useState<"cancelled" | "served">("served");
   const [updating, setUpdating] = useState(false);
 
-  // Fetch active sessions every 60s
-  useEffect(() => {
-    const fetchSessions = async () => {
+
+  const fetchSessions = async () => {
       try {
         const res = await GetAllActiveSessions();
         if (res?.status === "SUCCESS") {
@@ -71,6 +73,9 @@ export default function MonitorOrders() {
         toast.error("Failed to load sessions");
       }
     };
+  // Fetch active sessions every 60s
+  useEffect(() => {
+    
 
     fetchSessions();
     const interval = setInterval(fetchSessions, 60_000);
@@ -184,12 +189,17 @@ export default function MonitorOrders() {
   const handleEndSession = async ()=>{
    
 try {
+
+  if (!selectedSessionId) {
+  return toast.error("No session selected");
+}
       const response = await End_session({
       session_id: selectedSessionId,
       });
 
       if (response?.status === "SUCCESS") {
         toast.success("Session Ended!");
+        window.location.reload();
        
       } else {
         toast.error("Session failed to end, please try again!");
@@ -199,6 +209,7 @@ try {
     }
     finally{
        setLoadingOrders(false)
+       
     }
   }
 
@@ -381,7 +392,7 @@ try {
       <>
       <select
                       value={newStatus}
-                      onChange={(e) => setNewStatus(e.target.value as any)}
+                      onChange={(e) => setNewStatus(e.target.value as OrderStatus)}
                       className="px-5 py-3 border rounded-lg focus:ring-2 focus:ring-[#D4A373] focus:outline-none"
                     >
                       <option value="served">Served</option>
@@ -412,30 +423,18 @@ try {
               </div>
             ))}
 
-            <button
-  type="button"
-  className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-red-600 text-white font-semibold rounded-xl
-             hover:bg-red-700 shadow-lg shadow-red-300/30 
-             transition-all duration-300 active:scale-95"
 
-             onClick={handleEndSession}
+<button
+  type="button"
+  onClick={handleEndSession}
+  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#c9184a]/10 
+             text-[#c9184a] font-medium hover:bg-[#c9184a]/20 
+             transition-all duration-200 shadow-sm"
 >
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth="1.5"
-    stroke="currentColor"
-    className="w-5 h-5"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M6 18L18 6M6 6l12 12"
-    />
-  </svg>
-  End Session
+  <PowerCircle className="w-5 h-5" />
+  End Shift
 </button>
+
 
           </div>
         )}

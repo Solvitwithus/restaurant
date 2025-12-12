@@ -76,6 +76,7 @@ import Globe from '@/public/food.jpeg';
 import axios from 'axios';
 import Link from 'next/link';
 import { Staff } from './types';
+import Payments from './payments';
 
 
 export interface TableInfo {
@@ -150,7 +151,7 @@ const [orderName, setorderName] = useState<string>("")
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
   const [showResults, setShowResults] = useState(false);
-
+  const [showPayments, setShowPayments] = useState(false);
   const [heldOrdersOpen, setHeldOrdersOpen] = useState(false);
 const [heldOrders, setHeldOrders] = useState<RestureItemsTypes[]>([]);
 
@@ -538,7 +539,7 @@ const handleHold = async () => {
     <button
       type="button"
       onClick={()=>{
-        clearSelectedItems()
+       setShowPayments(true)
         toast.success("Hi")
       }}
       className="flex-1 bg-[#4B2E26] py-2 font-semibold text-white rounded-md 
@@ -547,9 +548,10 @@ const handleHold = async () => {
       
       Payments
     </button>
+     
         </div>
       </div>
-
+{showPayments && <Payments />}
            {/* Modal */}
 {processOrderModalOpen && (
   <div className="fixed inset-0 z-50 flex items-center justify-center">
