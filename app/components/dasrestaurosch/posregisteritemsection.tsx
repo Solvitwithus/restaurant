@@ -139,6 +139,8 @@ const Posregisteritemsection = () => {
               <div className="animate-spin h-8 w-8 border-4 border-[#099c7f] border-t-transparent rounded-full"></div>
             </div>
           ) : (
+          
+            
             uniqueCategories.map((cat) => (
               <div
                 key={cat.category_id}
@@ -158,51 +160,27 @@ const Posregisteritemsection = () => {
         {/* Items Grid */}
         <div className="flex-1 border rounded-lg p-4 overflow-y-auto">
           {!selectedCategory ? (
-  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 ">
-    {/* Card Mock 1 */}
-    <div className="bg-[#F7F5EE]/20 rounded-lg shadow p-3 animate-pulse">
-      <div className="w-20 h-20 mx-auto bg-gray-300/20 rounded mb-3"></div>
-      <div className="h-3 w-24 bg-gray-300/30 mx-auto rounded mb-2"></div>
-      <div className="h-3 w-16 bg-gray-200 mx-auto rounded"></div>
-    </div>
-
-    {/* Card Mock 2 */}
-    <div className="bg-[#F7F5EE]/20 rounded-lg shadow p-3 animate-pulse">
-      <div className="w-20 h-20 mx-auto bg-gray-300/20 rounded mb-3"></div>
-      <div className="h-3 w-24 bg-gray-300/30 mx-auto rounded mb-2"></div>
-      <div className="h-3 w-16 bg-gray-200 mx-auto rounded"></div>
-    </div>
-
-    {/* Card Mock 3 */}
-     <div className="bg-[#F7F5EE]/20 rounded-lg shadow p-3 animate-pulse">
-      <div className="w-20 h-20 mx-auto bg-gray-300/20 rounded mb-3"></div>
-      <div className="h-3 w-24 bg-gray-300/30 mx-auto rounded mb-2"></div>
-      <div className="h-3 w-16 bg-gray-200 mx-auto rounded"></div>
-    </div>
-
-    {/* Card Mock 4 */}
-     <div className="bg-[#F7F5EE]/20 rounded-lg shadow p-3 animate-pulse">
-      <div className="w-20 h-20 mx-auto bg-gray-300/20 rounded mb-3"></div>
-      <div className="h-3 w-24 bg-gray-300/30 mx-auto rounded mb-2"></div>
-      <div className="h-3 w-16 bg-gray-200 mx-auto rounded"></div>
-    </div>
-
-      {/* Card Mock 3 */}
-      <div className="bg-[#F7F5EE]/20 rounded-lg shadow p-3 animate-pulse">
-      <div className="w-20 h-20 mx-auto bg-gray-300/20 rounded mb-3"></div>
-      <div className="h-3 w-24 bg-gray-300/30 mx-auto rounded mb-2"></div>
-      <div className="h-3 w-16 bg-gray-200 mx-auto rounded"></div>
-    </div>
-
-    {/* Card Mock 4 */}
-     <div className="bg-[#F7F5EE]/20 rounded-lg shadow p-3 animate-pulse">
-      <div className="w-20 h-20 mx-auto bg-gray-300/20 rounded mb-3"></div>
-      <div className="h-3 w-24 bg-gray-300/30 mx-auto rounded mb-2"></div>
-      <div className="h-3 w-16 bg-gray-200 mx-auto rounded"></div>
-    </div>
-    
+            <>
+  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mb-6">
+    {Array.from({ length: 20 }).map((_, i) => (
+      <div
+        key={i}
+        className="bg-[#F7F5EE]/30 rounded-xl shadow-md p-4 flex flex-col items-center animate-pulse hover:scale-105 transition-transform"
+      >
+        <div className="w-20 h-20 rounded-full bg-gray-300/40 mb-3"></div>
+        <div className="h-3 w-24 bg-gray-300/50 rounded mb-2"></div>
+        <div className="h-3 w-16 bg-gray-200 rounded"></div>
+      </div>
+    ))}
   </div>
-  
+
+
+
+  <div className="text-center mt-4 text-black font-medium">
+    Select category to proceed
+  </div>
+</>
+
 ) 
  : filteredItems.length === 0 ? (
             <p className="text-center text-gray-500 mt-20">No items in this category</p>
@@ -224,8 +202,8 @@ const Posregisteritemsection = () => {
                     />
                   </div>
                   <p className="font-semibold text-sm line-clamp-2">{item.description}</p>
-                  <p className="text-xs text-gray-500 mt-1">KSHs: {item.price}</p>
-                  <p className="text-xs text-gray-400">{item.units}</p>
+                  <p className="text-xs text-gray-500 mt-1">KES: {item.price} /=</p>
+                  
                 </div>
               ))}
             </div>

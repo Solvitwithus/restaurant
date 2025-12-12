@@ -477,9 +477,15 @@ const handleHold = async () => {
         <div className="flex gap-5 justify-between mt-4">
             <button
 
-           disabled={selectedItems.length <= 0}
+           
       type="button"
-      onClick={()=>setProcessOrderModalOpen(true)}
+ onClick={() => {
+    if (selectedItems.length <=0) {
+      toast.error("Cannot place empty order");
+      return;
+    }
+    setProcessOrderModalOpen(true);
+  }}
       className="flex-1 bg-[#c9184a] py-2 font-semibold text-white rounded-md 
                  shadow-sm cursor-pointer hover:bg-[#a3153e] active:scale-95 transition-all"
     >
@@ -531,7 +537,10 @@ const handleHold = async () => {
 
     <button
       type="button"
-      onClick={()=>clearSelectedItems()}
+      onClick={()=>{
+        clearSelectedItems()
+        toast.success("Hi")
+      }}
       className="flex-1 bg-[#4B2E26] py-2 font-semibold text-white rounded-md 
                  shadow-sm cursor-pointer hover:bg-[#3a221d] active:scale-95 transition-all"
     >
