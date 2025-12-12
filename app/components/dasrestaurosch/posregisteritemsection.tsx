@@ -72,6 +72,7 @@ import { toast } from "sonner";
 import Globe from "@/public/food.jpeg";
 import { useSelectedData } from "@/app/store/useAuth";
 import { MenuItemsTypes } from "./pos-displaypanem";
+import { Query } from "pg";
 
 
 const Posregisteritemsection = () => {
@@ -79,7 +80,7 @@ const Posregisteritemsection = () => {
   const [menuItems, setMenuItems] = useState<MenuItemsTypes[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-
+const [query, setQuery] = useState<string>("")
   useEffect(() => {
     const fetchMenuItems = async () => {
       try {
@@ -113,15 +114,25 @@ const Posregisteritemsection = () => {
     toast.success(`${item.description} from category ${item.category_name} added`);
   };
 
+  const findCategoryforItem = menuItems.filter((val) =>
+  val.description.toLowerCase().includes(query.toLowerCase())
+);
+
+
   return (
     <div className="w-[49%] px-5 py-2 h-[90vh] border border-dotted border-[#c9184a]/50 overflow-hidden">
       <div className="flex items-center gap-4 mb-4">
         <input
           type="text"
           placeholder="Search items..."
+          value={query}
           className="w-64 border rounded-md px-3 py-2"
+          onChange={(e)=>setQuery(e.target.value)}
           // You can add search here too if you want
         />
+
+       
+       
         <Link href="/sales-register" className="text-[#099c7f] font-medium">
           Items
         </Link>
@@ -159,6 +170,24 @@ const Posregisteritemsection = () => {
 
         {/* Items Grid */}
         <div className="flex-1 border rounded-lg p-4 overflow-y-auto">
+
+
+         {/* Search Results */}
+{query && findCategoryforItem.length > 0 && (
+  <ul className="mb-4">
+    {findCategoryforItem.map((item) => (
+      <li key={item.stock_id}>
+        item <span className="font-semibold">{item.description}</span> — falls in category: <span className="font-semibold">{item.category_name}</span>
+      </li>
+    ))}
+  </ul>
+)}
+
+{/* No matches */}
+{query && findCategoryforItem.length === 0 && (
+  <p className="text-gray-500 mt-2">No items found</p>
+)}
+
           {!selectedCategory ? (
             <>
   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mb-6">
