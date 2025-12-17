@@ -358,11 +358,14 @@ const handleHold = async () => {
 
 
   return (
-    <div className="flex flex-col w-1/2 gap-4 items-end">
+     
+   <div className="flex flex-col w-full md:w-1/2 gap-3 items-end ">
+
       {/* Main Cart Panel */}
-        <div className='border w-full rounded-lg py-3 h-164 border-black' >
+      <div className="border w-full p-1 h-163 rounded-md  border-black">
+
         {/* Header + Search */}
-        <div className="sticky top-0 bg-white border-b border-gray-300 p-4 z-10">
+        <div className="sticky top-0 bg-white rounded-lg border-b border-gray-300 p-4 z-10">
           <div className="flex justify-between items-center mb-4">
             <button
               onClick={clearSelectedItems}
@@ -463,16 +466,18 @@ const handleHold = async () => {
       </div>
 
       {/* Totals & Action Buttons */}
-      <div className="w-[85%] bg-[#F6EFE7] border border-red-600/30 rounded-xl p-5 shadow">
+      <div className="w-full md:w-[85%] bg-[#F6EFE7] border border-red-600/30 rounded-xl p-5 shadow">
         <div className="space-y-3 mb-5">
           <div className="flex justify-between text-lg">
             <span className="font-bold">Total:</span>
             <span className="font-bold text-green-600">KSHs: {total}</span>
           </div>
-          <div className="flex justify-between text-xl font-bold pt-3 border-t">
-            <span>Payable:</span>
-            <span className="text-[#3A5750]">KSHs: {total}</span>
-          </div>
+          <div className="hidden md:flex justify-between text-lg">
+  <span className="font-bold">Payable:</span>
+  <span className="font-bold text-green-600">KSHs: {total}</span>
+</div>
+
+         
         </div>
 
         <div className="flex gap-5 justify-between mt-4">
@@ -487,7 +492,7 @@ const handleHold = async () => {
     }
     setProcessOrderModalOpen(true);
   }}
-      className="flex-1 bg-[#c9184a] py-2 font-semibold text-white rounded-md 
+      className="flex-1 p-1 bg-[#c9184a] py-2 font-semibold text-white rounded-md 
                  shadow-sm cursor-pointer hover:bg-[#a3153e] active:scale-95 transition-all"
     >
       Place Order
@@ -495,7 +500,7 @@ const handleHold = async () => {
 
  <button
   type="button"
-  className="flex-1 flex items-center justify-center gap-2 bg-[#099c7f] py-2 
+  className="flex-1 p-1 flex items-center justify-center gap-2 bg-[#099c7f] py-2 
              font-semibold cursor-pointer text-white rounded-md shadow-sm
              hover:bg-[#077d66] active:scale-95 transition-all"
              onClick={()=>{setholdOrderSnip(true)}}
@@ -507,7 +512,7 @@ const handleHold = async () => {
 
 <button
   type="button"
-  className={`flex-1 cursor-pointer
+  className={`flex-1 p-1 cursor-pointer
     ${loading ? "bg-[#086d59]/60 pointer-events-none" : "bg-[#086d59]"}
     flex items-center justify-center gap-2 py-2 
     font-semibold text-white rounded-md shadow-sm
@@ -542,7 +547,7 @@ const handleHold = async () => {
        setShowPayments(true)
         toast.success("Hi")
       }}
-      className="flex-1 bg-[#4B2E26] py-2 font-semibold text-white rounded-md 
+      className="flex-1 p-1 bg-[#4B2E26] py-2 font-semibold text-white rounded-md 
                  shadow-sm cursor-pointer hover:bg-[#3a221d] active:scale-95 transition-all"
     >
       

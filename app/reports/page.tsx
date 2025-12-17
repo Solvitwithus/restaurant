@@ -1,16 +1,18 @@
-import React from 'react'
-import Menu from '../components/dasrestaurosch/posmenu'
+import React from 'react';
+import Menu from '../components/dasrestaurosch/posmenu';
 
-function page() {
+function Page() {
   return (
-     <div className="min-h-screen overflow-y-auto min-w-min bg-[#F7F5EE]">
+    <div className="min-h-screen w-full bg-[#F7F5EE] flex flex-col">
       <Menu />
-      <h2>held orders history</h2>
-       <h2>POS transactions</h2>
-        <h2>Payments aggregates</h2>
 
-     </div>
-  )
+      <main className="flex-1 w-full px-4 py-6">
+        <h2 className="text-2xl font-bold mb-4">Held Orders History</h2>
+        <h2 className="text-2xl font-bold mb-4">POS Transactions</h2>
+        <h2 className="text-2xl font-bold">Payments Aggregates</h2>
+      </main>
+    </div>
+  );
 }
 
-export default page
+export default Page;

@@ -54,7 +54,7 @@ export default function RootLayout({
 
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased 
-          min-h-screen overflow-x-auto overflow-y-auto`}
+        bg-[#74101e] min-h-screen overflow-x-hidden`}
       >
         <Toaster />
         {children}

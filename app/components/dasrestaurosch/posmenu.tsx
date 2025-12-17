@@ -65,104 +65,145 @@
  * =============================================================================
  */
 
-import React from 'react';
+"use client";
 
-import Kitchen from "@/public/kitchen.svg"
-import Report from "@/public/report.svg"
+import React, { useState } from "react";
+import Kitchen from "@/public/kitchen.svg";
+import Report from "@/public/report.svg";
 import HomeIcon from "@/public/homeIcon.svg";
-import Image from 'next/image';
-import Link from 'next/link';
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useLoginSession } from "@/app/store/useAuth";
+import { Menu as MenuIcon, X } from "lucide-react";
 
-import { usePathname,useRouter } from 'next/navigation';
-import { useLoginSession } from '@/app/store/useAuth';
 interface LandingPage {
   name: string;
   path: string;
-  icon: string;
+  icon: any;
 }
 
-
 function Menu() {
+  const { clearToken, clearUsers } = useLoginSession();
+  const currentPath = usePathname();
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
 
-  const {clearToken,clearUsers}= useLoginSession()
-  const currentPath = usePathname()
-  const router = useRouter()
   const displayPanel: LandingPage[] = [
     { name: "Sales Register", path: "/sales-register", icon: HomeIcon },
     { name: "Menu List", path: "/stock-list", icon: Kitchen },
-   
     { name: "Reports", path: "/reports", icon: Report },
   ];
 
+  const logout = () => {
+    clearToken();
+    clearUsers();
+    localStorage.removeItem("login-session");
+    router.push("/");
+  };
+
   return (
-    <div className="min-w-min bg-[#F6EFE7] border-b shadow-sm sticky top-0 z-50">
-      <div className="overflow-x-auto whitespace-nowrap py-1 px-6">
+    <header className="w-full bg-[#F6EFE7] border-b shadow-sm sticky top-0 z-50">
+      {/* Top bar */}
+      <div className="flex items-center justify-between px-4 py-2">
 
-       
-        <div className="flex items-center justify-between min-w-max gap-8">
-          {/* Left: Menu Items */}
-           <div>
-        <h5 className="text-[#c9184a] font-black text-2xl">Digisales Pos</h5>
-        <p className='text-gray-900 text-sm'>Sand-Box</p>
-      </div>
-          <div className="flex items-center gap-8">
-            {displayPanel.map((val) => (
-            <Link
-  href={val.path}
-  key={val.name}
-  className={`flex items-center gap-3 hover:text-[#c9184a] transition-colors whitespace-nowrap
-    ${currentPath === val.path ? "text-[#099c7f] font-semibold" : "text-[#4B2E26]"}`}
->
-                <Image
-                  src={val.icon}
-                  height={30}
-                  width={30}
-                  alt={val.name}
-                  className="shrink-0"
-                />
-                <span className="text-sm font-medium">{val.name}</span>
-              </Link>
-            ))}
-          </div>
-
-          {/* Right: Actions */}
-          <div className="flex items-center gap-6 shrink-0 ml-12">
-           <div className="flex items-center gap-6 shrink-0 ml-12">
-  <Link
-    href="/"
-    onClick={() => {
-      clearToken();
-      clearUsers();
-      localStorage.removeItem("login-session");
-    }}
-    className="text-red-600 hover:underline text-sm font-medium"
-  >
-    Log Out
-  </Link>
-
-  <Link
-    
-    onClick={() => {
-      router.push("/")
-      clearToken();
-      clearUsers();
-      localStorage.removeItem("login-session");
-    }}
-    
-    href={process.env.NEXT_PUBLIC_EXIT_URL as string}
-    className="text-gray-600 hover:underline text-sm font-medium"
-  >
-    Exit
-  </Link>
-</div>
-
-          </div>
+        {/* Brand */}
+        <div>
+          <h5 className="text-[#c9184a] font-black text-xl">Digisales POS</h5>
+          <p className="text-gray-900 text-xs">Sand-Box</p>
         </div>
+
+        {/* Desktop Menu */}
+        <nav className="hidden md:flex items-center gap-8">
+          {displayPanel.map((val) => (
+            <Link
+              key={val.name}
+              href={val.path}
+              className={`flex items-center gap-2 transition-colors
+                ${currentPath === val.path
+                  ? "text-[#099c7f] font-semibold"
+                  : "text-[#4B2E26] hover:text-[#c9184a]"}`}
+            >
+              <Image src={val.icon} width={24} height={24} alt={val.name} />
+              <span className="text-sm">{val.name}</span>
+            </Link>
+          ))}
+        </nav>
+
+        {/* Desktop Actions */}
+        <div className="hidden md:flex items-center gap-6">
+          <button
+            onClick={logout}
+            className="text-red-600 hover:underline text-sm font-medium"
+          >
+            Log Out
+          </button>
+
+          <Link
+            href={process.env.NEXT_PUBLIC_EXIT_URL as string}
+            className="text-gray-600 hover:underline text-sm font-medium"
+          >
+            Exit
+          </Link>
+        </div>
+
+        {/* Mobile Hamburger */}
+        <button
+          onClick={() => setOpen(!open)}
+          className="md:hidden text-[#4B2E26]"
+        >
+          {open ? <X size={26} /> : <MenuIcon size={26} />}
+        </button>
       </div>
 
-      {/* Optional: subtle scroll indicator */}
-      <div className="h-1 bg-linear-to-r from-transparent via-gray-300 to-transparent opacity-30" />
+      {open && (
+  <div
+    className="
+      md:hidden
+      fixed
+      top-[64px]
+      left-0
+      w-full
+      bg-[#F6EFE7]
+      border-t
+      shadow-lg
+      z-50
+    "
+  >
+    <div className="flex flex-col divide-y">
+      {displayPanel.map((val) => (
+        <Link
+          key={val.name}
+          href={val.path}
+          onClick={() => setOpen(false)}
+          className={`flex items-center gap-3 px-4 py-4 text-sm
+            ${currentPath === val.path
+              ? "bg-[#efe6db] text-[#099c7f] font-semibold"
+              : "text-[#4B2E26] hover:bg-[#efe6db]"}`}
+        >
+          <Image src={val.icon} width={22} height={22} alt={val.name} />
+          {val.name}
+        </Link>
+      ))}
+
+      <button
+        onClick={logout}
+        className="px-4 py-4 text-right text-red-600 text-sm hover:bg-[#efe6db]"
+      >
+        Log Out
+      </button>
+
+      <Link
+        href={process.env.NEXT_PUBLIC_EXIT_URL as string}
+        className="px-4 py-4 text-right text-gray-600 text-sm hover:bg-[#efe6db]"
+      >
+        Exit
+      </Link>
     </div>
+  </div>
+)}
+
+    </header>
   );
 }
 

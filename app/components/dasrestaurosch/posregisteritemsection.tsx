@@ -120,7 +120,11 @@ const [query, setQuery] = useState<string>("")
 
 
   return (
-    <div className="w-[49%] px-5 py-2 h-[90vh] border border-dotted border-[#c9184a]/50 overflow-hidden">
+    
+    // <div className="w-[49%] px-5 py-2 md:hidden h-[90vh] border border-dotted border-[#c9184a]/50 overflow-hidden">
+
+      <div className="hidden md:block w-[49%] px-5 py-2 h-[90vh] border border-dotted border-[#c9184a]/50 overflow-hidden">
+
       <div className="flex items-center gap-4 mb-4">
         <input
           type="text"
