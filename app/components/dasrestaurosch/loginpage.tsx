@@ -101,7 +101,7 @@ setUsers([res?.user])
   };
 
   return (
-    <div className="relative flex items-center justify-center min-h-full bg-[#F6EFE7]">
+    <div className="relative flex items-center justify-center min-h-screen bg-[#F6EFE7]">
       <span className="bg-[#E9D7C1] rounded-br-full h-52 w-52 absolute top-0 left-0"></span>
       <span className="bg-[#D4A373] rounded-tl-full h-52 w-52 absolute bottom-0 right-0"></span>
 
